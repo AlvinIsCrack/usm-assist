@@ -174,13 +174,9 @@ const _semestres: { [sede: string]: { [jornada: string]: string[] } } = Object.f
     ])
 );
 const _ramos = $derived(ASIGNATURAS[Calendario?.sede]?.[Calendario.jornada]?.[Calendario.semestre] ?? []);
-let _updatedDate: dayjs.Dayjs | undefined = $state(undefined);;
+let _updatedDate: dayjs.Dayjs | undefined = dayjs(+ASIGNATURAS.date * 1000);
 
 export const Data = {
-    init() {
-        _updatedDate = dayjs(+ASIGNATURAS.date * 1000);
-    },
-
     getRamo(sede: string, jornada: string, semestre: string) {
         return ASIGNATURAS[sede]?.[jornada]?.[semestre];
     },

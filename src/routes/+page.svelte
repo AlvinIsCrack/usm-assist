@@ -1,6 +1,13 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+
 	import MainRenderer from '$lib/components/main/MainRenderer.svelte';
 	import SideBar from '$lib/components/main/sidebar/SideBar.svelte';
+	import { Calendario } from '$lib/states/calendario.svelte';
+
+	onMount(() => {
+		Calendario.init(localStorage);
+	});
 </script>
 
 <div role="application" class="bg-primary/80 relative h-full w-full overflow-hidden">

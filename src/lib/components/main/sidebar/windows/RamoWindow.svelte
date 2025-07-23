@@ -89,6 +89,7 @@
 	{/if}
 
 	<Button
+		class="relative bottom-0 mt-auto"
 		disabled={!selectedRamoSigla || !selectedParalelo}
 		variant={inHorario ? 'destructive' : 'primary'}
 		onclick={() => {
