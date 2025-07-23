@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { Bloque } from '$lib/data/data.svelte';
+	// import type { Bloque } from '../../../../../app';
 
-	let { bloques }: { bloques: Bloque[] } = $props();
+	// let { bloques }: { bloques: Bloque[] } = $props();
 </script>
 
 <div>
-	{bloques.length}
+	<!-- {bloques.length} -->
 </div>

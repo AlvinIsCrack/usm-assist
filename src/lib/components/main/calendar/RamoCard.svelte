@@ -3,8 +3,8 @@
 	import { type ColorInstance } from 'color';
 	import Badge from '$lib/components/ui/Badge.svelte';
 	import Door from '$lib/icons/door.svelte';
-	import { TipoBloque, type Bloque } from '$lib/data/data.svelte';
 	import { Calendario } from '$lib/states/calendario.svelte';
+	import { TipoBloque, type Bloque } from '$lib/types/horario';
 
 	let { bloqueObject }: { bloqueObject: Bloque } = $props();
 	let visible = $state(false);

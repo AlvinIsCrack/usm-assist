@@ -1,6 +1,7 @@
 import { STORAGE_JORNADA, STORAGE_SEDE, STORAGE_SEMESTRE } from "$lib/constants/ids";
-import { Data, Días, type Bloque, type Ramo } from "$lib/data/data.svelte";
+import { Data } from "$lib/data/data.svelte";
 import { generateColorForRamo } from "$lib/helpers/colors.svelte";
+import { type Ramo, Días, type Bloque } from "$lib/types/horario";
 import Color from 'color';
 
 // --- INTERFACES PARA LA SERIALIZACIÓN ---
@@ -132,7 +133,7 @@ function _loadV1(data: SaveData) {
 // --- INTERFAZ PÚBLICA (MODIFICADA PARA USAR ESTADO DERIVADO) ---
 
 export const Calendario = {
-    init() {
+    init(localStorage: any) {
         _sede = localStorage.getItem(STORAGE_SEDE) ?? "";
         _jornada = localStorage.getItem(STORAGE_JORNADA) ?? "";
         _semestre = localStorage.getItem(STORAGE_SEMESTRE) ?? "";

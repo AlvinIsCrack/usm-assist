@@ -12,9 +12,14 @@
 	import _ from 'lodash';
 	import { fade } from 'svelte/transition';
 	import ForkSpoon from '$lib/icons/fork-spoon.svelte';
-	import { Data, Días } from '$lib/data/data.svelte';
 	import { Calendario } from '$lib/states/calendario.svelte';
 	import Tooltip from '$lib/components/ui/Tooltip.svelte';
+	import { Data } from '$lib/data/data.svelte';
+	import { Días } from '$lib/types/horario';
+
+	$effect(() => {
+		Calendario.init(localStorage);
+	});
 
 	const [bloqueBegin, bloqueEnd] = $derived(Calendario.bloqueRange);
 	const [díaBegin, díaEnd] = $derived(Calendario.range);

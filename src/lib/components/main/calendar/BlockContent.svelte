@@ -2,7 +2,7 @@
 	import RamoCard from './RamoCard.svelte';
 	import Warning from '$lib/icons/warning.svelte';
 	import Door from '$lib/icons/door.svelte';
-	import type { Bloque } from '$lib/data/data.svelte';
+	import type { Bloque } from '$lib/types/horario';
 
 	let { bloques }: { bloques: Bloque[] | null } = $props();
 </script>

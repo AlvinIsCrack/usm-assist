@@ -2,8 +2,8 @@
 	import Button from '$lib/components/ui/Button.svelte';
 	import Separator from '$lib/components/ui/Separator.svelte';
 	import Tooltip from '$lib/components/ui/Tooltip.svelte';
-	import type { Ramo } from '$lib/data/data.svelte';
 	import { Calendario } from '$lib/states/calendario.svelte';
+	import type { Ramo } from '$lib/types/horario';
 
 	let {
 		selected = false,

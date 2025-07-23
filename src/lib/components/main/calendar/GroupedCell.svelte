@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { Días, Bloque } from '$lib/data/data.svelte';
 	import { Calendario } from '$lib/states/calendario.svelte';
+	import type { Bloque, Días } from '$lib/types/horario';
 	import BlockContent from './BlockContent.svelte';
 
 	let { día, bloque }: { día: Días; bloque: number } = $props();
