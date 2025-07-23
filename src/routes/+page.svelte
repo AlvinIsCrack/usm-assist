@@ -1,5 +1,4 @@
 <script>
-	import Calendar from '$lib/components/main/calendar/Calendar.svelte';
 	import SideBar from '$lib/components/main/sidebar/SideBar.svelte';
 	import { MAIN_RENDERER } from '$lib/constants/ids';
 </script>
