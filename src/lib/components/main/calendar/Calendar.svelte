@@ -10,9 +10,7 @@
 	import Time from '$lib/helpers/time';
 	import GroupedCell from './GroupedCell.svelte';
 	import _ from 'lodash';
-	import RamoWindow from '../sidebar/windows/RamoWindow.svelte';
 	import { fade } from 'svelte/transition';
-	import { SideBar } from '../sidebar/SideBar.svelte';
 	import ForkSpoon from '$lib/icons/fork-spoon.svelte';
 	import { Data, Días } from '$lib/data/data.svelte';
 	import { Calendario } from '$lib/states/calendario.svelte';

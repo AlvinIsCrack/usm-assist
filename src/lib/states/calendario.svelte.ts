@@ -1,7 +1,8 @@
+import { browser } from "$app/environment";
 import { STORAGE_JORNADA, STORAGE_SEDE, STORAGE_SEMESTRE } from "$lib/constants/ids";
 import { Data, Días, type Bloque, type Ramo } from "$lib/data/data.svelte";
 import { generateColorForRamo } from "$lib/helpers/colors.svelte";
-import Color, { type ColorInstance } from 'color';
+import Color from 'color';
 
 // --- INTERFACES PARA LA SERIALIZACIÓN ---
 // Estructura de datos para un ramo guardado.
@@ -129,15 +130,16 @@ function _loadV1(data: SaveData) {
     }
 }
 
+$effect(() => {
+    if (!browser) return;
+    _sede = localStorage.getItem(STORAGE_SEDE) ?? "";
+    _jornada = localStorage.getItem(STORAGE_JORNADA) ?? "";
+    _semestre = localStorage.getItem(STORAGE_SEMESTRE) ?? "";
+})
+
 // --- INTERFAZ PÚBLICA (MODIFICADA PARA USAR ESTADO DERIVADO) ---
 
 export const Calendario = {
-    init(localStorage: any) {
-        _sede = localStorage.getItem(STORAGE_SEDE) ?? "";
-        _jornada = localStorage.getItem(STORAGE_JORNADA) ?? "";
-        _semestre = localStorage.getItem(STORAGE_SEMESTRE) ?? "";
-    },
-
     get sede() {
         return _sede;
     },

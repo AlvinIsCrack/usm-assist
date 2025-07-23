@@ -1,19 +1,17 @@
-<script lang="ts">
-	import { onMount } from 'svelte';
-
-	import MainRenderer from '$lib/components/main/MainRenderer.svelte';
-	import SideBar from '$lib/components/main/sidebar/SideBar.svelte';
-	import { Calendario } from '$lib/states/calendario.svelte';
-
-	onMount(() => {
-		Calendario.init(localStorage);
-	});
+<script>
+	import { MAIN_RENDERER } from '$lib/constants/ids';
 </script>
 
 <div role="application" class="bg-primary/80 relative h-full w-full overflow-hidden">
 	<div class="flex h-full w-full flex-row items-center justify-center">
-		<SideBar />
-		<MainRenderer />
+		{#await import('$lib/components/main/sidebar/SideBar.svelte') then { default: SideBar }}
+			<SideBar />
+		{/await}
+		<div id={MAIN_RENDERER} class="relative h-full w-full p-2">
+			{#await import('$lib/components/main/calendar/Calendar.svelte') then { default: Calendar }}
+				<Calendar />
+			{/await}
+		</div>
 	</div>
 	<div
 		id="tooltip-portal"
