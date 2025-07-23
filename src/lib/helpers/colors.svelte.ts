@@ -1,0 +1,182 @@
+import { Calendario } from "$lib/states/calendario.svelte";
+import Color, { type ColorInstance } from "color";
+import { differenceEuclidean } from "culori";
+
+type KeywordColorEntry = {
+    regex: RegExp;
+    color: ColorInstance | ((match: string) => ColorInstance);
+};
+
+const KEYWORD_COLOR_MAPPINGS: KeywordColorEntry[] = [
+    // === Colores Base Solicitados (Chile) ===
+    { regex: /\b(MAT|MATE|MATEMATICAS?)\b/i, color: Color('#1463c9') }, // Azul oscuro para Matemáticas
+    { regex: /\b(LENGUAJE|LITERATURA|HUM)\b/i, color: Color('#CC0000') }, // Rojo para Lenguaje/Humanidades
+    { regex: /\b(CIENCIAS? NATURALES?|BIO)\b/i, color: Color('#2E8B57') }, // Verde para Ciencias Naturales / Biología
+    { regex: /\b(FIS|FISICA)\b/i, color: Color('#8A2BE2') }, // Morado para Física
+    { regex: /\b(DEFIDER|EDUCACION FISICA|EFI)\b/i, color: Color('#808080') }, // Gris para Educación Física
+    { regex: /\b(QUI|QUIMICA)\b/i, color: Color('#ADFF2F') }, // Verde ácido para Química
+    { regex: /\b(MUSICA)\b/i, color: Color('#DDA0DD') }, // Morado claro para Música
+    { regex: /\b(HISTORIA)\b/i, color: Color('#FFA500') }, // Naranjo para Historia
+
+    // === Colores por Departamento/Carrera (basado en el JSON) ===
+    { regex: /\b(INF|INFORMATICA|COMPUTACI(O|Ó)N)\b/i, color: Color('#FCA103') }, // Naranjo-amarillo para Informática
+    { regex: /\b(ELO|ELECTRONICA)\b/i, color: Color('#17A589') }, // Verde azulado para Electrónica
+    { regex: /\b(ELI|ELECTRICA)\b/i, color: Color('#2ECC71') }, // Verde brillante para Eléctrica
+    { regex: /\b(MEC|MECANICA)\b/i, color: Color('#5D6D7E') }, // Gris metálico para Mecánica
+    { regex: /\b(CIV|OBRAS CIVILES|CONSTRUCCION)\b/i, color: Color('#A0522D') }, // Tono tierra para Obras Civiles/Construcción
+    { regex: /\b(ARQ|ARQUITECTURA)\b/i, color: Color('#D2B48C') }, // Tono arena para Arquitectura
+    { regex: /\b(IND|INDUSTRIAS)\b/i, color: Color('#4682B4') }, // Azul acero para Industrias
+    { regex: /\b(COMERCIAL|ICS)\b/i, color: Color('#3498DB') }, // Azul claro para Comercial
+    { regex: /\b(DISEÑO|IDP)\b/i, color: Color('#AF7AC5') }, // Lavanda para Diseño de Productos
+    { regex: /\b(MINAS|METALURGIA)\b/i, color: Color('#CD7F32') }, // Bronce para Minería y Metalurgia
+    { regex: /\b(AERO|AERONAUTICA)\b/i, color: Color('#87CEEB') }, // Azul cielo para Aeronáutica
+
+    // === NUEVOS MAPPINGS: Negocios, Humanidades y Cursos Institucionales ===
+    { regex: /\b(ECO|ECONOMIA|FINANZAS|NEGOCIOS|ADMINISTRACION)\b/i, color: Color('#1E8449') }, // Verde oscuro para Negocios
+    { regex: /\b(DERECHO|LEGAL|LEGISLACION)\b/i, color: Color('#800000') }, // Burdeo para Derecho
+    { regex: /\b(ESTADISTICA|DATOS|PROBABILIDADES)\b/i, color: Color('#34495E') }, // Azul pizarra para Estadística/Datos
+    { regex: /\b(ETICA|FORMACION FUNDAMENTAL|FFH|FFU)\b/i, color: Color('#884EA0') }, // Púrpura para Cursos de Formación Sello
+    { regex: /\b(LID|LIDERAZGO)\b/i, color: Color('#16A085') }, // Verde azulado para Liderazgo
+
+    // === NUEVO MAPPING con FUNCIÓN: Idiomas (Inglés) ===
+    {
+        regex: /\b(INGLES|ENGLISH|ICM)\s*(\d+|[IVXLCDM]+)\b/i,
+        color: (match: string) => {
+            const baseColor = Color('#2980B9'); // Azul estándar para Inglés
+            // Busca el número (arábigo o romano) al final del string
+            const levelMatch = match.match(/(\d+|[IVXLCDM]+)$/i);
+            if (!levelMatch) return baseColor;
+
+            const numStr = levelMatch[0].toUpperCase();
+            let level = 0;
+
+            // Conversor simple de números romanos a arábigos
+            const romanMap: { [key: string]: number } = { I: 1, V: 5, X: 10, L: 50 };
+            if (isNaN(parseInt(numStr, 10))) {
+                level = numStr.split('').reduce((acc, char, i) => {
+                    const currentVal = romanMap[char];
+                    const nextVal = romanMap[numStr[i + 1]];
+                    return acc + (nextVal > currentVal ? -currentVal : currentVal);
+                }, 0);
+            } else {
+                level = parseInt(numStr, 10);
+            }
+
+            // Aclara el color progresivamente según el nivel (hasta un límite)
+            return baseColor.lighten(Math.min(level * 0.07, 0.7));
+        }
+    }
+];
+
+
+function getColorForString(string: string): ColorInstance | undefined {
+    for (const entry of KEYWORD_COLOR_MAPPINGS) {
+        if (entry.regex.test(string)) {
+            let out = typeof entry.color === "function" ? entry.color(string) : entry.color;
+
+            // --- Modificadores por Nivel (Números Romanos) ---
+            if (/\bI\b/g.test(string)) out = out.darken(.05).rotate(5);
+            else if (/\bII\b/g.test(string)) out = out.darken(.1).rotate(10);
+            else if (/\bIII\b/g.test(string)) out = out.darken(.15).rotate(15);
+            else if (/\bIV\b/g.test(string)) out = out.darken(.2).rotate(20);
+            else if (/\bV\b/g.test(string)) out = out.darken(.25).rotate(25);
+            else if (/\bVI\b/g.test(string)) out = out.darken(.3).rotate(30);
+
+            // --- Modificadores por Nivel (Números Arábigos en la sigla) ---
+            const levelMatch = string.match(/\b\w{3}(\d)/); // Busca el primer dígito después de las 3 letras de la sigla
+            if (levelMatch) {
+                const level = parseInt(levelMatch[1], 10);
+                if (!isNaN(level)) {
+                    // oscurece más a medida que el nivel es mayor
+                    out = out.darken(level * 0.06);
+                }
+            }
+
+            // --- Modificadores por tipo de Ramo (palabras clave) ---
+            if (/\b(LABORATORIO|TALLER)\b/gi.test(string)) {
+                out = out.desaturate(.2).lighten(.1); // Un color más "práctico"
+            } else if (/\b(INTRODUCCION|FUNDAMENTOS)\b/gi.test(string)) {
+                out = out.lighten(.15).saturate(.1); // Un color más claro para ramos introductorios
+            } else if (/\b(AVANZAD(O|A)|SUPERIOR)\b/gi.test(string)) {
+                out = out.darken(.25).saturate(.2); // Más oscuro e intenso para ramos avanzados
+            } else if (/\b(SEMINARIO|PROYECTO DE TITULO|MEMORIA)\b/gi.test(string)) {
+                out = out.rotate(-15).desaturate(0.5); // Un tono más sobrio para seminarios/títulos
+            }
+
+            // --- Modificadores por patrones especiales ---
+            if (/\b[IV]{1,2}-\w\b/g.test(string)) { // Ramos con formato "IV-A"
+                out = out.desaturate(.4);
+            }
+
+            if (/\b(APLICAD(A|O))\b/gi.test(string)) { // Ramos con "Aplicada/o"
+                out = out.rotate(10);
+            }
+
+            return out;
+        }
+    }
+    return undefined; // No se encontró coincidencia
+}
+
+export function generateColorForRamo(sigla: string, nombre: string) {
+    let outColor: ReturnType<typeof getColorForString>;
+    outColor = getColorForString(sigla);
+    outColor ||= getColorForString(nombre);
+
+    const fn = differenceEuclidean('rgb');
+    const MAX_TRIES = 10; // Límite de intentos para generar un color único
+
+    if (!outColor) {
+        let tries = 0;
+        let uniqueColorFound = false;
+        let newColor: ColorInstance | undefined;
+
+        while (tries < MAX_TRIES && !uniqueColorFound) {
+            const hue = Math.random() * 360; // Tono: cualquier valor entre 0 y 360
+            const saturation = 0.7 + Math.random() * 0.3; // Saturación: entre 70% y 100%
+            const lightness = 0.4 + Math.random() * 0.2; // Luminosidad: entre 40% y 60%
+
+            newColor = Color.hsl(hue, saturation * 100, lightness * 100);
+            uniqueColorFound = true; // Asumimos que es único hasta que se demuestre lo contrario
+
+            for (const testColor of Calendario.ramos.map(r => r.color)) {
+                if (testColor && fn(newColor.hex(), testColor.hex()) < 0.1) { // Umbral de diferencia menor para considerar "repetido"
+                    uniqueColorFound = false;
+                    break;
+                }
+            }
+            tries++;
+        }
+        return newColor!; // Se garantiza que newColor tendrá un valor después del bucle
+    }
+
+    // Si outColor ya tiene un valor, verificamos su unicidad y lo ajustamos si es necesario
+    for (const testColor of Calendario.ramos.map(r => r.color)) {
+        if (testColor && fn(outColor.hex(), testColor.hex()) < 0.25) { // Si el color ya existe o es muy similar
+            let tries = 0;
+            let uniqueColorFound = false;
+            let adjustedColor: ColorInstance | undefined;
+
+            while (tries < MAX_TRIES && !uniqueColorFound) {
+                // Ajustar ligeramente el color existente para intentar hacerlo único
+                const newHue = (outColor.hue() + (Math.random() * 60 - 50)) % 360; // Ajuste de hue +/- 30
+                const newSaturation = Math.min(1, Math.max(0, outColor.saturationl() / 100 + (Math.random() * 0.2 - 0.1)));
+                const newLightness = Math.min(1, Math.max(0, outColor.lightness() / 100 + (Math.random() * 0.2 - 0.1)));
+
+                adjustedColor = Color.hsl(newHue, newSaturation * 100, newLightness * 100);
+                uniqueColorFound = true;
+
+                for (const testColor of Calendario.ramos.map(r => r.color)) {
+                    if (testColor && fn(adjustedColor.hex(), testColor.hex()) < 0.1) {
+                        uniqueColorFound = false;
+                        break;
+                    }
+                }
+                tries++;
+            }
+            return adjustedColor || outColor;
+        }
+    }
+
+    return outColor;
+}

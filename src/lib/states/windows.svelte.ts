@@ -1,1 +1,0 @@
-export let windows: { id: string; x: number; y: number }[] = $state([]);
