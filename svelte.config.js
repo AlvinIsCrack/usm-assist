@@ -8,7 +8,6 @@ const config = {
 	preprocess: vitePreprocess(),
 	kit: {
 		adapter: adapter({
-			strict: false,
 			fallback: 'index.html',
 		}),
 		paths: {
