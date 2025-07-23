@@ -17,10 +17,6 @@
 	import { Data } from '$lib/data/data.svelte';
 	import { Días } from '$lib/types/horario';
 
-	$effect(() => {
-		Calendario.init(localStorage);
-	});
-
 	const [bloqueBegin, bloqueEnd] = $derived(Calendario.bloqueRange);
 	const [díaBegin, díaEnd] = $derived(Calendario.range);
 
@@ -45,7 +41,7 @@
 	}
 </script>
 
-<div class="relative h-full w-full">
+<div transition:fade class="relative h-full w-full">
 	{#if !Calendario.ramos.length && !Calendario.ramoPreview}
 		<div
 			transition:fade={{ duration: 200 }}

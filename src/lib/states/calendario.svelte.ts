@@ -162,19 +162,22 @@ export const Calendario = {
     set sede(sede: string) {
         if (_lockedLocation) return;
         _sede = sede;
-        localStorage.setItem(STORAGE_SEDE, sede);
+        if (sede)
+            localStorage.setItem(STORAGE_SEDE, sede);
     },
 
     set jornada(jornada: string) {
         if (_lockedLocation) return;
         _jornada = jornada;
-        localStorage.setItem(STORAGE_JORNADA, jornada);
+        if (jornada)
+            localStorage.setItem(STORAGE_JORNADA, jornada);
     },
 
     set semestre(semestre: string) {
         if (_lockedLocation) return;
         _semestre = semestre;
-        localStorage.setItem(STORAGE_SEMESTRE, semestre);
+        if (semestre)
+            localStorage.setItem(STORAGE_SEMESTRE, semestre);
     },
 
     set ramos(nuevosRamos: Ramo[]) {
