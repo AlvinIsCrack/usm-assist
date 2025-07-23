@@ -76,6 +76,7 @@ const _semestres: { [sede: string]: { [jornada: string]: string[] } } = Object.f
         )
     ])
 );
+
 const _ramos = $derived(ASIGNATURAS[Calendario?.sede]?.[Calendario.jornada]?.[Calendario.semestre] ?? []);
 let _updatedDate: dayjs.Dayjs | undefined = dayjs(+ASIGNATURAS.date * 1000);
 

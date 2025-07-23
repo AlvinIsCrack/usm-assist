@@ -1,12 +1,9 @@
 <script lang="ts" module>
-	import Card from '$lib/components/ui/Card.svelte';
-	import SedeSelector from './elements/SedeSelector.svelte';
 	import Add from '$lib/icons/add.svelte';
 	import { circOut } from 'svelte/easing';
 	import RamoWindow from './windows/RamoWindow.svelte';
 	import { fade, fly } from 'svelte/transition';
 	import Button from '$lib/components/ui/Button.svelte';
-	import RamosList from './elements/RamosList.svelte';
 	import { Calendario } from '$lib/states/calendario.svelte';
 	import Trash from '$lib/icons/trash.svelte';
 	import Save from '$lib/icons/save.svelte';
@@ -25,7 +22,10 @@
 	};
 </script>
 
-<div class="bg-background text-foreground relative h-full w-90 p-4">
+<div
+	transition:fly={{ x: -200 }}
+	class="bg-sidebar text-sidebar-foreground relative h-full w-90 p-4"
+>
 	{#if !activeWindow}
 		<div
 			out:fade={{ delay: 400, duration: 50 }}
@@ -67,9 +67,15 @@
 					</Button>
 				</Tooltip>
 			</div>
-			<RamosList />
+			{#await import('./elements/RamosList.svelte') then { default: RamosList }}
+				<RamosList />
+			{/await}
 			<div class="flex h-full w-full flex-col-reverse">
-				<SedeSelector />
+				{#if Calendario.inicializado}
+					{#await import('./elements/SedeSelector.svelte') then { default: SedeSelector }}
+						<SedeSelector />
+					{/await}
+				{/if}
 			</div>
 		</div>
 	{/if}

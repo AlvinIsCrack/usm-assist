@@ -1,14 +1,24 @@
 <script>
-	import SideBar from '$lib/components/main/sidebar/SideBar.svelte';
 	import { MAIN_RENDERER } from '$lib/constants/ids';
+	import Loader from '$lib/icons/loader.svelte';
+	import { fade } from 'svelte/transition';
 </script>
 
 <div role="application" class="bg-primary/80 relative h-full w-full overflow-hidden">
 	<div class="flex h-full w-full flex-row items-center justify-center">
-		<SideBar />
+		{#await import('$lib/components/main/sidebar/SideBar.svelte') then { default: SideBar }}
+			<SideBar />
+		{/await}
 		<div id={MAIN_RENDERER} class="relative h-full w-full p-2">
-			{#await import('$lib/components/main/calendar/Calendar.svelte')}
-				<div class="relative h-full w-full"></div>
+			{#await (async () => {
+				await new Promise(r => setTimeout(r, 500));
+				return import('$lib/components/main/calendar/Calendar.svelte');
+			})()}
+				<div class="relative flex h-full w-full items-center justify-center">
+					<div transition:fade class="absolute">
+						<Loader class="loader-usm scale-200" />
+					</div>
+				</div>
 			{:then { default: Calendar }}
 				<Calendar />
 			{/await}
@@ -19,3 +29,16 @@
 		class="pointer-events-none absolute top-0 left-0 z-[1000] h-full w-full"
 	></div>
 </div>
+
+<style>
+	:global(.loader-usm) {
+		rotate: 0;
+		animation: loader-usm-animation 1s linear infinite;
+	}
+
+	@keyframes -global-loader-usm-animation {
+		to {
+			rotate: 360deg;
+		}
+	}
+</style>

@@ -1,5 +1,4 @@
 import { STORAGE_JORNADA, STORAGE_SEDE, STORAGE_SEMESTRE } from "$lib/constants/ids";
-import { Data } from "$lib/data/data.svelte";
 import { generateColorForRamo } from "$lib/helpers/colors.svelte";
 import { type Ramo, Días, type Bloque } from "$lib/types/horario";
 import Color from 'color';
@@ -35,7 +34,8 @@ let _semestre: string = $state("");
 
 let _ramoPreview: Ramo | undefined = $state(undefined);
 let _ramos: Ramo[] = $state([]);
-let _lockedLocation: boolean = $derived(Boolean(_ramos.length));
+let _initialized = $state(false);
+let _lockedLocation: boolean = $derived(_initialized && Boolean(_ramos.length));
 
 // El estado derivado se calcula reactivamente cuando _ramos o _ramoPreview cambian.
 const derivedState = $derived.by(() => {
@@ -95,7 +95,9 @@ function _handleLoadedData(
     }
 }
 
-function _loadV1(data: SaveData) {
+async function _loadV1(data: SaveData) {
+    const Data = await import("$lib/data/data.svelte").then((data) => data.Data);
+
     const loadedRamos: Ramo[] = [];
     let notFoundCount = 0;
 
@@ -137,6 +139,7 @@ export const Calendario = {
         _sede = localStorage.getItem(STORAGE_SEDE) ?? "";
         _jornada = localStorage.getItem(STORAGE_JORNADA) ?? "";
         _semestre = localStorage.getItem(STORAGE_SEMESTRE) ?? "";
+        _initialized = true;
     },
 
     get sede() {
@@ -155,6 +158,10 @@ export const Calendario = {
         return _ramos;
     },
 
+    get inicializado() {
+        return _initialized;
+    },
+
     get lockedLocation() {
         return _lockedLocation;
     },
@@ -162,22 +169,19 @@ export const Calendario = {
     set sede(sede: string) {
         if (_lockedLocation) return;
         _sede = sede;
-        if (sede)
-            localStorage.setItem(STORAGE_SEDE, sede);
+        localStorage.setItem(STORAGE_SEDE, sede);
     },
 
     set jornada(jornada: string) {
         if (_lockedLocation) return;
         _jornada = jornada;
-        if (jornada)
-            localStorage.setItem(STORAGE_JORNADA, jornada);
+        localStorage.setItem(STORAGE_JORNADA, jornada);
     },
 
     set semestre(semestre: string) {
         if (_lockedLocation) return;
         _semestre = semestre;
-        if (semestre)
-            localStorage.setItem(STORAGE_SEMESTRE, semestre);
+        localStorage.setItem(STORAGE_SEMESTRE, semestre);
     },
 
     set ramos(nuevosRamos: Ramo[]) {

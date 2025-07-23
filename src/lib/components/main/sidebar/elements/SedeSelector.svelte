@@ -10,6 +10,7 @@
 	import Toggle from '$lib/components/ui/Toggle.svelte';
 	import Lock from '$lib/icons/lock.svelte';
 	import Warning from '$lib/icons/warning.svelte';
+	import { fly } from 'svelte/transition';
 
 	let { class: _class, ...props }: HTMLAttributes<HTMLDivElement> = $props();
 
@@ -76,88 +77,96 @@
 	const invalid = $derived(!Calendario.sede);
 </script>
 
-<Card class="{_class} flex flex-col gap-2 overflow-hidden" {...props}>
-	<div class="pointer-events-none relative mb-2 h-40 w-full">
-		{#if invalid}
-			<div
-				class="sede-selector-warning-bg absolute top-0 left-0 h-full w-full origin-bottom scale-150 object-cover"
-			></div>
-			<div
-				class="flex h-full w-full flex-col items-center justify-center gap-2 text-center leading-4"
-			>
-				<Warning class="scale-200" />
-				<p class="z-10">Ingresa tu sede, jornada y semestre</p>
+<div transition:fly>
+	<Card class="{_class} flex flex-col gap-2 overflow-hidden" {...props}>
+		<div class="pointer-events-none relative mb-2 h-40 w-full">
+			{#if invalid}
+				<div
+					class="sede-selector-warning-bg absolute top-0 left-0 h-full w-full origin-bottom scale-150 object-cover"
+				></div>
+				<div
+					class="flex h-full w-full flex-col items-center justify-center gap-2 text-center leading-4"
+				>
+					<Warning class="scale-200" />
+					<p class="z-10">Ingresa tu sede, jornada y semestre</p>
+				</div>
+			{:else}
+				<img
+					class="absolute top-0 left-0 h-full w-full origin-bottom scale-150 object-cover"
+					alt=""
+					src={sedeImageSrc}
+				/>
+				<img
+					class="absolute top-0 left-0 h-full w-full origin-bottom scale-150 mask-r-from-20% mask-r-to-75% object-cover"
+					alt=""
+					src="{isVespertina ? 'vespertino' : 'diurno'}.jpg"
+				/>
+			{/if}
+		</div>
+		{#if lockedLocation}
+			<div class="text-xs">
+				<Lock class="inline" /> No se puede cambiar la ubicación al tener ramos inscritos en el horario.
 			</div>
 		{:else}
-			<img
-				class="absolute top-0 left-0 h-full w-full origin-bottom scale-150 object-cover"
-				alt=""
-				src={sedeImageSrc}
-			/>
-			<img
-				class="absolute top-0 left-0 h-full w-full origin-bottom scale-150 mask-r-from-20% mask-r-to-75% object-cover"
-				alt=""
-				src="{isVespertina ? 'vespertino' : 'diurno'}.jpg"
-			/>
-		{/if}
-	</div>
-	{#if lockedLocation}
-		<div class="text-xs">
-			<Lock class="inline" /> No se puede cambiar la ubicación al tener ramos inscritos en el horario.
-		</div>
-	{:else}
-		<div
-			class="flex flex-col gap-2 {lockedLocation ? 'pointer-events-none opacity-50 grayscale' : ''}"
-		>
-			<div>
-				<p class="text-sm">Sede</p>
-				<Select
-					placeholder="Selecciona una sede..."
-					class="w-full"
-					items={Data.sedes.map((s) => ({
-						value: s
-					}))}
-					bind:value={selectedSede}
-				/>
-			</div>
-			<div class="flex w-full flex-row justify-between">
-				{#if selectedSede && Data.jornadas[selectedSede]}
-					<div>
-						<p class="text-sm">Jornada</p>
-						<div class="flex w-full flex-row items-center justify-between">
-							<div class="flex w-full flex-row items-center justify-between [&>.icon]:scale-100">
-								<div class="flex flex-row items-center justify-center gap-1">
-									<Sun
-										class="icon transition {isVespertina ? 'disabled-jornada' : 'enabled-jornada'}"
-									/>
-									<Toggle
-										disabled={Data.jornadas[selectedSede].length <= 1}
-										checked={isVespertina}
-										onclick={() => (selectedJornada = isVespertina ? 'Diurna' : 'Vespertina')}
-									/>
-									<Moon
-										class="icon transition {!isVespertina ? 'disabled-jornada' : 'enabled-jornada'}"
-									/>
+			<div
+				class="flex flex-col gap-2 {lockedLocation
+					? 'pointer-events-none opacity-50 grayscale'
+					: ''}"
+			>
+				<div>
+					<p class="text-sm">Sede</p>
+					<Select
+						placeholder="Selecciona una sede..."
+						class="w-full"
+						items={Data.sedes.map((s) => ({
+							value: s
+						}))}
+						bind:value={selectedSede}
+					/>
+				</div>
+				<div class="flex w-full flex-row justify-between">
+					{#if selectedSede && Data.jornadas[selectedSede]}
+						<div>
+							<p class="text-sm">Jornada</p>
+							<div class="flex w-full flex-row items-center justify-between">
+								<div class="flex w-full flex-row items-center justify-between [&>.icon]:scale-100">
+									<div class="flex flex-row items-center justify-center gap-1">
+										<Sun
+											class="icon transition {isVespertina
+												? 'disabled-jornada'
+												: 'enabled-jornada'}"
+										/>
+										<Toggle
+											disabled={Data.jornadas[selectedSede].length <= 1}
+											checked={isVespertina}
+											onclick={() => (selectedJornada = isVespertina ? 'Diurna' : 'Vespertina')}
+										/>
+										<Moon
+											class="icon transition {!isVespertina
+												? 'disabled-jornada'
+												: 'enabled-jornada'}"
+										/>
+									</div>
 								</div>
 							</div>
 						</div>
-					</div>
-				{/if}
-				{#if selectedSede && selectedJornada}
-					<div>
-						<p class="text-sm">Semestre</p>
-						<Select
-							disabled={semestres.length === 1}
-							class="w-full text-sm"
-							items={semestres.map((s) => ({ value: s }))}
-							bind:value={selectedSemestre}
-						/>
-					</div>
-				{/if}
+					{/if}
+					{#if selectedSede && selectedJornada}
+						<div>
+							<p class="text-sm">Semestre</p>
+							<Select
+								disabled={semestres.length === 1}
+								class="w-full text-sm"
+								items={semestres.map((s) => ({ value: s }))}
+								bind:value={selectedSemestre}
+							/>
+						</div>
+					{/if}
+				</div>
 			</div>
-		</div>
-	{/if}
-</Card>
+		{/if}
+	</Card>
+</div>
 
 <style>
 	:global(.sede-selector-warning-bg) {
