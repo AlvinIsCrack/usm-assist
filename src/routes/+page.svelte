@@ -1,6 +1,8 @@
 <script lang="ts">
 	import MainRenderer from '$lib/components/main/MainRenderer.svelte';
 	import SideBar from '$lib/components/main/sidebar/SideBar.svelte';
+
+	export const prerender = true;
 </script>
 
 <div role="application" class="bg-primary/80 relative h-full w-full overflow-hidden">
