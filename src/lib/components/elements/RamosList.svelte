@@ -5,6 +5,7 @@
 	import Add from '$lib/icons/add.svelte';
 	import ChangeParalelo from '$lib/icons/change-paralelo.svelte';
 	import Circles from '$lib/icons/circles.svelte';
+	import Edit from '$lib/icons/edit.svelte';
 	import Teachers from '$lib/icons/teachers.svelte';
 	import { Calendario } from '$lib/states/calendario.svelte';
 	import { SideBar } from '../main/sidebar/SideBar.svelte';
@@ -64,23 +65,23 @@
 				<div
 					class="absolute top-0 right-0 m-2 flex origin-top-right scale-90 flex-row gap-2 will-change-transform"
 				>
-					<Tooltip content="Cambiar paralelo">
+					<Tooltip content="Editar">
 						<Button
 							variant="secondary"
 							size="icon"
 							onclick={() =>
 								SideBar.setActiveWindow(RamoWindow, {
-									openAt: {
+									edit: {
 										sigla: ramo.sigla,
 										paralelo: ramo.paralelo
 									}
 								})}
 						>
-							<ChangeParalelo class="scale-150" />
+							<Edit class="scale-150" />
 						</Button>
 					</Tooltip>
 
-					<Tooltip content="Eliminar ramo">
+					<Tooltip content="Eliminar">
 						<Button
 							variant="destructive"
 							size="icon"

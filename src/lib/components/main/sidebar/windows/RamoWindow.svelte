@@ -10,16 +10,16 @@
 	import RamoSearch from '../../../elements/RamoSearch.svelte';
 
 	let {
-		openAt
+		edit
 	}: {
-		openAt?: {
+		edit?: {
 			sigla: string;
 			paralelo: string;
 		};
 	} = $props();
 
-	let selectedRamo = $state(openAt?.sigla ?? '');
-	let selectedParalelo = $state(openAt?.paralelo ?? '');
+	let selectedRamo = $state(edit?.sigla ?? '');
+	let selectedParalelo = $state(edit?.paralelo ?? '');
 
 	$effect(() => {
 		const _ = selectedRamo;
@@ -45,15 +45,17 @@
 </script>
 
 <div class="flex h-full w-full flex-col gap-2 overflow-hidden overflow-y-auto">
-	<div>
-		Busca y escoge el ramo
-		<p class="text-xs opacity-50">
-			Escribe para buscar entre los ramos disponibles. Puedes escribir la sigla o palabras del
-			nombre del ramo. Si un ramo ya está en tu horario, se marcará con naranjo en la lista, y se
-			reemplazará el paralelo.
-		</p>
-	</div>
-	<RamoSearch bind:value={selectedRamo} />
+	{#if !edit}
+		<div>
+			Busca y escoge el ramo
+			<p class="text-xs opacity-50">
+				Escribe para buscar entre los ramos disponibles. Puedes escribir la sigla o palabras del
+				nombre del ramo. Si un ramo ya está en tu horario, se marcará con naranjo en la lista, y se
+				reemplazará el paralelo.
+			</p>
+		</div>
+		<RamoSearch bind:value={selectedRamo} />
+	{/if}
 
 	{#if selectedRamo}
 		<RamoSummary sigla={selectedRamo} />
