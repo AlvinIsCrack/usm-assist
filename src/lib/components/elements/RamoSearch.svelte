@@ -132,6 +132,9 @@
 		role="listbox"
 		id="listbox-ramo-search"
 	>
+		{#if !filteredItems.length}
+			<li class="text-muted-foreground p-2 text-sm">No hay resultados</li>
+		{/if}
 		{#each filteredItems as item, i (item[0])}
 			{@const sigla = item[0]}
 			{@const paralelos = Object.values(item[1])}

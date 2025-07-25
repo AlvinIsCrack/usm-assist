@@ -22,7 +22,7 @@
 
 <div transition:fade class="relative h-full w-full">
 	{#if !Calendario.visible}
-		{#await import('./Title.svelte') then { default: Title }}
+		{#await import('../elements/Title.svelte') then { default: Title }}
 			<div class="absolute flex h-full w-full items-center justify-center">
 				<Title />
 			</div>

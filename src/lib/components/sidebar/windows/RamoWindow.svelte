@@ -5,9 +5,9 @@
 	import { untrack } from 'svelte';
 	import { SideBar } from '../SideBar.svelte';
 	import Separator from '$lib/components/ui/Separator.svelte';
-	import RamoSummary from '../../../elements/RamoSummary.svelte';
-	import ParaleloOption from '../../../elements/ParaleloOption.svelte';
-	import RamoSearch from '../../../elements/RamoSearch.svelte';
+	import RamoSummary from '../../elements/RamoSummary.svelte';
+	import ParaleloOption from '../../elements/ParaleloOption.svelte';
+	import RamoSearch from '../../elements/RamoSearch.svelte';
 
 	let {
 		edit

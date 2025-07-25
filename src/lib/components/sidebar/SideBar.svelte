@@ -113,29 +113,24 @@
 				</div>
 				<div class="flex h-full w-full flex-col-reverse gap-1">
 					{#if Calendario.visible}
-						{#await import('../../elements/RamosList.svelte') then { default: RamosList }}
+						{#await import('../elements/RamosList.svelte') then { default: RamosList }}
 							<RamosList />
 						{/await}
 						<Separator />
-						{#await import('../../elements/Statistics.svelte') then { default: Statistics }}
+						{#await import('../elements/Statistics.svelte') then { default: Statistics }}
 							<Statistics />
 						{/await}
 					{:else if Calendario.inicializado}
-						{#await import('../../elements/SedeSelector.svelte') then { default: SedeSelector }}
+						{#await import('../elements/SedeSelector.svelte') then { default: SedeSelector }}
 							<SedeSelector />
 						{/await}
 					{/if}
 				</div>
 				<div class="w-full text-center text-sm">
 					<Separator />
-					<p class="mt-4">
-						Página hecha por
-						<code
-							class="bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold"
-						>
-							lukka
-						</code>.
-					</p>
+					{#await import("$lib/components/elements/Me.svelte") then { default: Me }}
+						<Me />
+					{/await}
 				</div>
 			</div>
 		{/if}

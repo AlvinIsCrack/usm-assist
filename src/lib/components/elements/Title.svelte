@@ -25,7 +25,7 @@
 					{Data.updateDate?.fromNow().replace('hace', '').deaccent()}
 				</div>
 			</div>
-			<div class="w-full text-center text-sm italic opacity-50">
+			<div class="w-full text-center italic opacity-50">
 				Actualizado el {Data.updateDate?.format('dddd D [de] MMM/YYYY[, a las] HH:mm')}
 			</div>
 		</div>

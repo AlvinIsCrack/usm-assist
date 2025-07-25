@@ -6,9 +6,9 @@
 	import Sun from '$lib/icons/sun.svelte';
 	import { Calendario } from '$lib/states/calendario.svelte';
 	import type { HTMLAttributes } from 'svelte/elements';
-	import Toggle from '$lib/components/ui/Toggle.svelte';
 	import Lock from '$lib/icons/lock.svelte';
 	import Warning from '$lib/icons/warning.svelte';
+	import { fade } from 'svelte/transition';
 
 	let { class: _class, ...props }: HTMLAttributes<HTMLDivElement> = $props();
 
@@ -77,7 +77,7 @@
 
 <div>
 	<Card class="{_class} flex flex-col gap-2 overflow-hidden" {...props}>
-		<div class="pointer-events-none relative mb-2 h-40 w-full">
+		<div class="pointer-events-none relative mb-2 h-40 w-full will-change-contents">
 			{#if invalid}
 				<div
 					class="sede-selector-warning-bg absolute top-0 left-0 h-full w-full origin-bottom scale-150 object-cover"
@@ -89,16 +89,22 @@
 					<p class="z-10">Ingresa tu sede, jornada y semestre</p>
 				</div>
 			{:else}
-				<img
-					class="absolute top-0 left-0 h-full w-full origin-bottom scale-150 object-cover"
-					alt=""
-					src={sedeImageSrc}
-				/>
-				<img
-					class="absolute top-0 left-0 h-full w-full origin-bottom scale-150 mask-r-from-20% mask-r-to-75% object-cover"
-					alt=""
-					src="{isVespertina ? 'vespertino' : 'diurno'}.jpg"
-				/>
+				{#key sedeImageSrc}
+					<img
+						transition:fade
+						class="absolute top-0 left-0 h-full w-full origin-bottom scale-150 object-cover"
+						alt=""
+						src={sedeImageSrc}
+					/>
+				{/key}
+				{#key isVespertina}
+					<img
+						transition:fade
+						class="absolute top-0 left-0 h-full w-full origin-bottom scale-150 mask-r-from-25% mask-r-to-75% object-cover"
+						alt=""
+						src="{isVespertina ? 'vespertino' : 'diurno'}.jpg"
+					/>
+				{/key}
 			{/if}
 		</div>
 		{#if lockedLocation}
@@ -107,7 +113,7 @@
 			</div>
 		{:else}
 			<div
-				class="flex flex-col gap-4 {lockedLocation
+				class="flex flex-col gap-2 {lockedLocation
 					? 'pointer-events-none opacity-50 grayscale'
 					: ''}"
 			>
@@ -122,27 +128,22 @@
 						bind:value={selectedSede}
 					/>
 				</div>
-				<div class="flex w-full flex-row justify-between">
+				<div class="flex w-full flex-row justify-between gap-1">
 					{#if selectedSede && Data.jornadas[selectedSede]}
-						<div>
+						<div class="h-full flex-1">
 							<p class="text-sm">Jornada</p>
-							<div class="mt-2 flex flex-row items-center justify-center gap-1">
-								<Sun
-									class="icon transition {isVespertina ? 'disabled-jornada' : 'enabled-jornada'}"
-								/>
-								<Toggle
-									disabled={Data.jornadas[selectedSede].length <= 1}
-									checked={isVespertina}
-									onclick={() => (selectedJornada = isVespertina ? 'Diurna' : 'Vespertina')}
-								/>
-								<Moon
-									class="icon transition {!isVespertina ? 'disabled-jornada' : 'enabled-jornada'}"
-								/>
-							</div>
+							<Select
+								disabled={Data.jornadas[selectedSede].length <= 1}
+								class="w-full text-sm"
+								items={Data.jornadas[selectedSede].map((jornada) => ({
+									value: jornada
+								}))}
+								bind:value={selectedJornada}
+							/>
 						</div>
 					{/if}
 					{#if selectedSede && selectedJornada}
-						<div>
+						<div class="h-full w-2/5">
 							<p class="text-sm">Semestre</p>
 							<Select
 								disabled={semestres.length === 1}

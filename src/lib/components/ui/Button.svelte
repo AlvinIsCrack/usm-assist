@@ -1,9 +1,10 @@
 <script lang="ts">
+	import type { Component } from 'svelte';
 	import type { HTMLButtonAttributes } from 'svelte/elements';
 	import { tv } from 'tailwind-variants';
 
 	const button = tv({
-		base: 'border border-input cursor-pointer transition-colors disabled:opacity-50 disabled:pointer-events-none flex justify-center items-center gap-2 rounded-md',
+		base: 'border border-input cursor-pointer transition-colors disabled:opacity-50 disabled:pointer-events-none flex justify-center gap-2 items-center rounded-md',
 		variants: {
 			variant: {
 				primary: 'bg-primary hover:bg-primary/50 text-primary-foreground',
@@ -13,8 +14,8 @@
 			},
 			size: {
 				icon: 'p-2 w-min h-auto aspect-square',
-				sm: 'px-0.5 py-1 text-sm',
-				default: 'px-4 py-1.5'
+				sm: 'px-0.5 py-1',
+				default: 'px-3 py-1.5'
 			}
 		}
 	});
@@ -23,13 +24,18 @@
 		variant = 'primary',
 		size = 'default',
 		class: _class,
+		startDecorator: StartDecorator,
 		...props
 	}: HTMLButtonAttributes & {
 		variant?: keyof typeof button.variants.variant;
 		size?: keyof typeof button.variants.size;
+		startDecorator?: Component;
 	} = $props();
 </script>
 
 <button class="{button({ variant, size })} {_class}" {...props}>
+	{#if StartDecorator}
+		<StartDecorator class="mr-1 inline scale-125" />
+	{/if}
 	{@render children?.()}
 </button>
