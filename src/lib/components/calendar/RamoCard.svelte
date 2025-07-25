@@ -23,7 +23,7 @@
 	});
 </script>
 
-<div class="h-full w-full {!esCátedra ? 'rounded-none p-4' : ''}">
+<div class="h-full w-full {!esCátedra ? 'rounded-none p-2' : ''}">
 	<div class="relative h-full w-full">
 		{#if visible}
 			<div
@@ -62,7 +62,7 @@
 						</Badge>
 					{/if}
 					{#if !esCátedra}
-						<p class="uppercase" class:opacity-60={esOscuro} class:opacity-40={!esOscuro}>
+						<p class="text-sm uppercase" class:opacity-60={esOscuro} class:opacity-40={!esOscuro}>
 							{Object.keys(TipoBloque)[Object.values(TipoBloque).indexOf(bloqueObject.tipo)]}
 						</p>
 					{/if}
