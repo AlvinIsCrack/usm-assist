@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&family=Funnel+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100..900;1,100..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Teko:wght@300..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&family=Special+Gothic+Expanded+One&display=swap');
 
 @import "tailwindcss";
 @import "tw-animate-css";
@@ -77,6 +77,9 @@
 }
 
 @theme inline {
+  --font-gothic-expanded: "Special Gothic Expanded One", "sans-serif";
+  --font-roboto: "Roboto", "sans-serif";
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -120,17 +123,8 @@
     @apply border-border outline-ring/50;
   }
 
-  html {
-    font-family: "Roboto", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;
-    font-variation-settings:
-      "wdth" 100;
-  }
-
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-roboto;
   }
 
   html,

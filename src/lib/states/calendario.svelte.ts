@@ -34,6 +34,8 @@ let _semestre: string = $state("");
 
 let _ramoPreview: Ramo | undefined = $state(undefined);
 let _ramos: Ramo[] = $state([]);
+let _calendarioVisible = $derived(_ramos.length || _ramoPreview);
+
 let _initialized = $state(false);
 let _lockedLocation: boolean = $derived(_initialized && Boolean(_ramos.length));
 
@@ -60,12 +62,12 @@ const derivedState = $derived.by(() => {
 
     // Cálculo del rango de bloques
     const bloquesNums = allBloques.map(b => b.bloque);
-    let minBloque = Math.min(...bloquesNums);
-    if (minBloque > 1 && minBloque % 2 === 0) {
-        minBloque -= 1;
-    }
-    const maxBloque = Math.max(...bloquesNums);
-    const bloqueRange: [number, number] = [minBloque, maxBloque];
+    // let minBloque = Math.min(...bloquesNums);
+    // if (minBloque > 1 && minBloque % 2 === 0) {
+    //     minBloque -= 1;
+    // }
+    const maxBloque = Math.max(8, ...bloquesNums);
+    const bloqueRange: [number, number] = [1, maxBloque];
 
     // Creación del mapa de bloques por día
     const bloquesDía: { [día: number]: { [bloque: number]: Bloque[] } } = {};
@@ -166,6 +168,10 @@ export const Calendario = {
         return _lockedLocation;
     },
 
+    get visible() {
+        return _calendarioVisible;
+    },
+
     set sede(sede: string) {
         if (_lockedLocation) return;
         _sede = sede;
@@ -221,9 +227,9 @@ export const Calendario = {
         return false;
     },
 
-    hasRamo(query: { sigla?: string }) {
-        let { sigla } = query;
-        return _ramos.some(r => r.sigla === sigla)
+    hasRamo(query: { sigla?: string, paralelo?: string }) {
+        let { sigla, paralelo } = query;
+        return _ramos.some(r => (!sigla || r.sigla === sigla) && (!paralelo || r.paralelo === paralelo));
     },
 
     addRamo(ramo: Ramo) {

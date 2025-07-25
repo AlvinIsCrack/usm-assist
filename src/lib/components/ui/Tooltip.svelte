@@ -24,10 +24,8 @@
 		offset?: number;
 	} & HTMLAttributes<HTMLDivElement> = $props();
 
-	// Se elimina la variante `visible` y las clases de transición de opacidad.
-	// La visibilidad ahora la controla el bloque `{#if}` y la directiva `transition:`.
 	const tooltip = tv({
-		base: 'absolute w-max pointer-events-auto max-w-xs text-center z-[1000] rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md',
+		base: 'fixed w-max font-light max-w-xs text-center rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md',
 		variants: {
 			position: {
 				top: 'bottom-full left-1/2',
@@ -42,7 +40,7 @@
 	let visible = $state(false);
 	let style = $state('');
 	let wrapperEl: HTMLDivElement | undefined;
-	let tooltipEl: HTMLDivElement | undefined;
+	let tooltipEl: HTMLDivElement | undefined = $state(undefined);
 
 	const boundaryPadding = 4;
 
@@ -149,7 +147,7 @@
 </script>
 
 <div
-	class="relative inline-flex cursor-help {wrapperClass}"
+	class="relative inline-flex {wrapperClass}"
 	onpointerenter={() => (visible = true)}
 	onpointerleave={() => (visible = false)}
 	onpointermove={handlePointerMove}
@@ -161,7 +159,7 @@
 		<div
 			class="{tooltip({
 				position: disablePortal || followCursor ? undefined : position
-			})} font-light {_class}"
+			})} {_class}"
 			{style}
 			bind:this={tooltipEl}
 			{...props}

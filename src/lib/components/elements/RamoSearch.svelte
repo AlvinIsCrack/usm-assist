@@ -42,17 +42,22 @@
 			.replace(/[\u0300-\u036f]/g, '');
 	}
 
-	const filteredItems = $derived(
-		!disabled
-			? Object.entries(Data.cachedRamos).filter(([k, paralelos]) => {
-					const q = normalizeString(query);
-					return (
-						normalizeString(k).includes(q) ||
-						normalizeString(Object.values(paralelos).at(0)?.nombre ?? '').includes(q)
-					);
-				})
-			: []
-	);
+	const filteredItems = $derived.by(() => {
+		if (disabled) return [];
+
+		const splittedQuery = normalizeString(query)
+			.split(/\s+|\*/g)
+			.filter((s) => s);
+		return Object.entries(Data.cachedRamos).filter(([k, paralelos]) => {
+			for (const q of splittedQuery)
+				if (
+					!normalizeString(k).includes(q) &&
+					!normalizeString(Object.values(paralelos).at(0)?.nombre ?? '').includes(q)
+				)
+					return false;
+			return true;
+		});
+	});
 
 	$effect(() => {
 		// Cada vez que los resultados de búsqueda cambian, se reinicia el índice destacado.

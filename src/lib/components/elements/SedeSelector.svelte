@@ -1,7 +1,6 @@
 <script lang="ts">
 	import Card from '$lib/components/ui/Card.svelte';
 	import Select from '$lib/components/ui/Select.svelte';
-	import { STORAGE_SEDE, STORAGE_JORNADA, STORAGE_SEMESTRE } from '$lib/constants/ids';
 	import { Data } from '$lib/data/data.svelte';
 	import Moon from '$lib/icons/moon.svelte';
 	import Sun from '$lib/icons/sun.svelte';
@@ -10,7 +9,6 @@
 	import Toggle from '$lib/components/ui/Toggle.svelte';
 	import Lock from '$lib/icons/lock.svelte';
 	import Warning from '$lib/icons/warning.svelte';
-	import { fly } from 'svelte/transition';
 
 	let { class: _class, ...props }: HTMLAttributes<HTMLDivElement> = $props();
 
@@ -77,7 +75,7 @@
 	const invalid = $derived(!Calendario.sede);
 </script>
 
-<div transition:fly>
+<div>
 	<Card class="{_class} flex flex-col gap-2 overflow-hidden" {...props}>
 		<div class="pointer-events-none relative mb-2 h-40 w-full">
 			{#if invalid}
@@ -109,7 +107,7 @@
 			</div>
 		{:else}
 			<div
-				class="flex flex-col gap-2 {lockedLocation
+				class="flex flex-col gap-4 {lockedLocation
 					? 'pointer-events-none opacity-50 grayscale'
 					: ''}"
 			>
@@ -128,26 +126,18 @@
 					{#if selectedSede && Data.jornadas[selectedSede]}
 						<div>
 							<p class="text-sm">Jornada</p>
-							<div class="flex w-full flex-row items-center justify-between">
-								<div class="flex w-full flex-row items-center justify-between [&>.icon]:scale-100">
-									<div class="flex flex-row items-center justify-center gap-1">
-										<Sun
-											class="icon transition {isVespertina
-												? 'disabled-jornada'
-												: 'enabled-jornada'}"
-										/>
-										<Toggle
-											disabled={Data.jornadas[selectedSede].length <= 1}
-											checked={isVespertina}
-											onclick={() => (selectedJornada = isVespertina ? 'Diurna' : 'Vespertina')}
-										/>
-										<Moon
-											class="icon transition {!isVespertina
-												? 'disabled-jornada'
-												: 'enabled-jornada'}"
-										/>
-									</div>
-								</div>
+							<div class="mt-2 flex flex-row items-center justify-center gap-1">
+								<Sun
+									class="icon transition {isVespertina ? 'disabled-jornada' : 'enabled-jornada'}"
+								/>
+								<Toggle
+									disabled={Data.jornadas[selectedSede].length <= 1}
+									checked={isVespertina}
+									onclick={() => (selectedJornada = isVespertina ? 'Diurna' : 'Vespertina')}
+								/>
+								<Moon
+									class="icon transition {!isVespertina ? 'disabled-jornada' : 'enabled-jornada'}"
+								/>
 							</div>
 						</div>
 					{/if}

@@ -13,8 +13,6 @@
 	import { fade } from 'svelte/transition';
 	import ForkSpoon from '$lib/icons/fork-spoon.svelte';
 	import { Calendario } from '$lib/states/calendario.svelte';
-	import Tooltip from '$lib/components/ui/Tooltip.svelte';
-	import { Data } from '$lib/data/data.svelte';
 	import { Días } from '$lib/types/horario';
 
 	const [bloqueBegin, bloqueEnd] = $derived(Calendario.bloqueRange);
@@ -42,46 +40,12 @@
 </script>
 
 <div transition:fade class="relative h-full w-full">
-	{#if !Calendario.ramos.length && !Calendario.ramoPreview}
-		<div
-			transition:fade={{ duration: 200 }}
-			class="absolute flex h-full w-full items-center justify-center"
-		>
-			<div>
-				<div class="text-foreground/50 text-center text-4xl leading-8 font-black">
-					INFORMACIÓN DE RAMOS ACTUALIZADA<br />
-					HACE
-					<Tooltip
-						content="Actualizado el {Data.updateDate?.format(
-							'dddd D [de] MMM/YYYY[, a las] HH:mm'
-						)}"
-					>
-						<span class="text-foreground text-5xl uppercase underline">
-							{Data.updateDate?.fromNow().replace('hace', '')}
-						</span>
-					</Tooltip>.
-				</div>
-				<ul class="my-6 ml-6 list-disc [&>li]:mt-2">
-					<li>Ingresa tu sede, jornada y semestre.</li>
-					<li>Da click en <b>añadir ramo</b> para buscar y añadir ramos a tu horario.</li>
-					<li>
-						Puedes guardar y cargar horarios de esta misma página, para guardarlas en tu computador.
-					</li>
-					<li>Aún no se puede exportar a PDF/imágen, srry :c.</li>
-				</ul>
-				Página hecha por
-				<code
-					class="bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold"
-				>
-					lukka
-				</code>.
-
-				<br />
-				Si tienes reclamos, dudas o sugerencias, o si la información de los ramos está desactualizada,
-				<a href="mailto:lenriquez@usm.cl">escribeme acá we</a>
-				{'<3'}.
+	{#if !Calendario.visible}
+		{#await import('./Title.svelte') then { default: Title }}
+			<div class="absolute flex h-full w-full items-center justify-center">
+				<Title />
 			</div>
-		</div>
+		{/await}
 	{:else}
 		<div
 			transition:fade={{ duration: 200 }}

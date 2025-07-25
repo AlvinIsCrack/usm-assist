@@ -1,12 +1,3 @@
-<script module>
-	let selectedParalelo = $state('');
-	export const RamoWindow = {
-		get selectedParalelo() {
-			return selectedParalelo;
-		}
-	};
-</script>
-
 <script lang="ts">
 	import Button from '$lib/components/ui/Button.svelte';
 	import { Data } from '$lib/data/data.svelte';
@@ -14,14 +5,24 @@
 	import { untrack } from 'svelte';
 	import { SideBar } from '../SideBar.svelte';
 	import Separator from '$lib/components/ui/Separator.svelte';
-	import RamoSummary from '../elements/RamoSummary.svelte';
-	import ParaleloOption from '../elements/ParaleloOption.svelte';
-	import RamoSearch from '../elements/RamoSearch.svelte';
+	import RamoSummary from '../../../elements/RamoSummary.svelte';
+	import ParaleloOption from '../../../elements/ParaleloOption.svelte';
+	import RamoSearch from '../../../elements/RamoSearch.svelte';
 
-	let selectedRamoSigla = $state('');
+	let {
+		openAt
+	}: {
+		openAt?: {
+			sigla: string;
+			paralelo: string;
+		};
+	} = $props();
+
+	let selectedRamo = $state(openAt?.sigla ?? '');
+	let selectedParalelo = $state(openAt?.paralelo ?? '');
 
 	$effect(() => {
-		const _ = selectedRamoSigla;
+		const _ = selectedRamo;
 		untrack(() => {
 			selectedParalelo = '';
 			Calendario.ramoPreview = undefined;
@@ -35,43 +36,45 @@
 	});
 
 	const paraleloOptions = $derived(
-		Object.keys(selectedRamoSigla ? Data.cachedRamos[selectedRamoSigla] : []).map((paralelo) => ({
+		Object.keys(selectedRamo ? Data.cachedRamos[selectedRamo] : []).map((paralelo) => ({
 			value: paralelo
 		}))
 	);
 
-	const inHorario = $derived(Calendario.hasRamo({ sigla: selectedRamoSigla }));
+	const inHorario = $derived(Calendario.hasRamo({ sigla: selectedRamo }));
 </script>
 
 <div class="flex h-full w-full flex-col gap-2 overflow-hidden overflow-y-auto">
 	<div>
 		Busca y escoge el ramo
-		<p class="text-sm opacity-50">
-			Escribe para buscar entre los ramos disponibles. Si un ramo ya está en tu horario, se marcará
-			con naranjo en la lista, y se reemplazará.
+		<p class="text-xs opacity-50">
+			Escribe para buscar entre los ramos disponibles. Puedes escribir la sigla o palabras del
+			nombre del ramo. Si un ramo ya está en tu horario, se marcará con naranjo en la lista, y se
+			reemplazará el paralelo.
 		</p>
 	</div>
-	<RamoSearch bind:value={selectedRamoSigla} />
+	<RamoSearch bind:value={selectedRamo} />
 
-	{#if selectedRamoSigla}
-		<RamoSummary sigla={selectedRamoSigla} />
+	{#if selectedRamo}
+		<RamoSummary sigla={selectedRamo} />
 	{/if}
 
-	{#if selectedRamoSigla && paraleloOptions.length}
+	{#if selectedRamo && paraleloOptions.length}
 		<Separator />
 		<div>
 			Elige el paralelo
-			<p class="text-sm opacity-50">
+			<p class="text-xs opacity-50">
 				Haz click en un paralelo para previsualizarlo en tu horario. Pulsa de nuevo para detener la
 				previsualización.
 			</p>
 		</div>
 		<div class="flex h-full w-full flex-col gap-2">
 			{#each paraleloOptions as paraleloOption (paraleloOption.value)}
-				{@const ramo = { ...Data.cachedRamos[selectedRamoSigla][paraleloOption.value!] }}
+				{@const ramo = { ...Data.cachedRamos[selectedRamo][paraleloOption.value!] }}
 				{@const selected = paraleloOption.value === selectedParalelo}
 
 				<ParaleloOption
+					disabled={Calendario.hasRamo({ sigla: ramo.sigla, paralelo: ramo.paralelo })}
 					onclick={() => {
 						if (selected) {
 							selectedParalelo = '';
@@ -90,7 +93,7 @@
 
 	<Button
 		class="relative bottom-0 mt-auto"
-		disabled={!selectedRamoSigla || !selectedParalelo}
+		disabled={!selectedRamo || !selectedParalelo}
 		variant={inHorario ? 'destructive' : 'primary'}
 		onclick={() => {
 			if (!Calendario.ramoPreview) return;

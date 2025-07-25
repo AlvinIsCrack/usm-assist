@@ -5,6 +5,7 @@ const STORAGE_SEMESTRE = "semestre";
 
 export {
     MAIN_RENDERER,
+
     STORAGE_SEDE,
     STORAGE_JORNADA,
     STORAGE_SEMESTRE

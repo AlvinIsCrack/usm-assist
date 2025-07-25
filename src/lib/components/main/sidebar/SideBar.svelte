@@ -9,7 +9,10 @@
 	import Save from '$lib/icons/save.svelte';
 	import Load from '$lib/icons/load.svelte';
 	import Tooltip from '$lib/components/ui/Tooltip.svelte';
+	import Separator from '$lib/components/ui/Separator.svelte';
+	import { tick } from 'svelte';
 
+	let activeWindowProps: any = $state(undefined);
 	let activeWindow: any | undefined = $state(undefined);
 	export const SideBar = {
 		closeActiveWindow: function () {
@@ -18,85 +21,150 @@
 
 		get activeWindow() {
 			return activeWindow;
+		},
+
+		async setActiveWindow(value: any, props: any) {
+			activeWindow = undefined;
+			await tick();
+			activeWindowProps = props;
+			activeWindow = value;
 		}
 	};
 </script>
 
 <div
-	transition:fly={{ x: -200 }}
-	class="bg-sidebar text-sidebar-foreground relative h-full w-90 p-4"
+	id="main-sidebar"
+	class="bg-sidebar text-sidebar-foreground relative h-full overflow-hidden p-4"
 >
-	{#if !activeWindow}
-		<div
-			out:fade={{ delay: 400, duration: 50 }}
-			class="flex h-full w-full flex-col gap-2 {activeWindow ? 'pointer-events-none' : ''}"
-		>
+	<div in:fade={{ delay: 500, duration: 500 }} class="h-full w-full">
+		{#if !activeWindow}
 			<div
-				class="flex h-min w-full flex-row flex-nowrap gap-1 {!Calendario.sede
-					? 'pointer-events-none opacity-50 grayscale select-none'
-					: ''}"
+				out:fade={{ delay: 400, duration: 50 }}
+				class="flex h-full w-full flex-col gap-2 {activeWindow ? 'pointer-events-none' : ''}"
 			>
-				<Button size="sm" class="w-full text-nowrap" onclick={() => (activeWindow = RamoWindow)}>
-					<Add /> Añadir ramo
+				<!-- <div
+					class="pointer-events-none relative z-10 flex h-40 flex-col items-center justify-center pb-2 select-none"
+				>
+					<div
+						class="absolute top-0 left-0 -z-10 h-full w-full origin-bottom scale-150 bg-white"
+					></div>
+					<img
+						src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSexr4dvbYixA8xOnNyeqx_w0Y3H0F9jkT6Hg&s"
+						alt=""
+						class="z-10"
+					/>
+				</div> -->
+				<div class="h-min w-full">
+					{#if Calendario.sede}
+						<div in:fly={{ y: -40 }} class="flex h-min w-full flex-row flex-nowrap gap-2">
+							<Button
+								size="sm"
+								class="w-full text-nowrap"
+								onclick={() => (activeWindow = RamoWindow)}
+							>
+								<Add /> Añadir ramo
+							</Button>
+							<Tooltip content="Guardar horario">
+								<Button
+									variant="ghost"
+									size="icon"
+									disabled={!Calendario.ramos.length}
+									onclick={Calendario.save}
+								>
+									<Save />
+								</Button>
+							</Tooltip>
+							<Tooltip content="Cargar horario">
+								<Button variant="ghost" size="icon" onclick={Calendario.load}>
+									<Load />
+								</Button>
+							</Tooltip>
+							<Tooltip content="Limpiar todo">
+								<Button
+									size="icon"
+									disabled={!Calendario.ramos.length}
+									variant="ghost"
+									onclick={() =>
+										confirm('¿Estás seguro? Esta acción va a borrar TODOS los ramos inscritos.') &&
+										Calendario.clear()}
+								>
+									<Trash />
+								</Button>
+							</Tooltip>
+						</div>
+						<!-- <Button size="sm" variant="secondary">
+
+						</Button> -->
+					{/if}
+				</div>
+				<div class="flex h-full w-full flex-col-reverse gap-1">
+					{#if Calendario.visible}
+						{#await import('../../elements/RamosList.svelte') then { default: RamosList }}
+							<RamosList />
+						{/await}
+						{#await import('../../elements/Statistics.svelte') then { default: Statistics }}
+							<Statistics />
+						{/await}
+					{:else if Calendario.inicializado}
+						{#await import('../../elements/SedeSelector.svelte') then { default: SedeSelector }}
+							<SedeSelector />
+						{/await}
+					{/if}
+				</div>
+				<div class="w-full text-center text-sm">
+					<Separator />
+					<p class="mt-4">
+						Página hecha por
+						<code
+							class="bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold"
+						>
+							lukka
+						</code>.
+					</p>
+				</div>
+			</div>
+		{/if}
+		{#if activeWindow}
+			{@const Window = activeWindow}
+			<div
+				transition:fly={{ x: '-100%', opacity: 1, easing: circOut, duration: 400 }}
+				class="bg-sidebar-accent text-sidebar-accent-foreground absolute top-0 left-0 flex h-full w-full flex-col items-end gap-2 p-4 {activeWindow
+					? 'pointer-events-auto'
+					: 'pointer-events-none'}"
+			>
+				<Button
+					class="aspect-square h-min w-auto"
+					variant="ghost"
+					onclick={() => {
+						activeWindow = undefined;
+						Calendario.ramoPreview = undefined;
+					}}
+				>
+					<Add class="scale-150 rotate-45" />
 				</Button>
-				<Tooltip content="Guardar horario">
-					<Button
-						variant="secondary"
-						size="icon"
-						disabled={!Calendario.ramos.length}
-						onclick={Calendario.save}
-					>
-						<Save />
-					</Button>
-				</Tooltip>
-				<Tooltip content="Cargar horario">
-					<Button variant="secondary" size="icon" onclick={Calendario.load}>
-						<Load />
-					</Button>
-				</Tooltip>
-				<Tooltip content="Limpiar todo">
-					<Button
-						size="icon"
-						disabled={!Calendario.ramos.length}
-						variant="destructive"
-						onclick={() =>
-							confirm('¿Estás seguro? Esta acción va a borrar TODOS los ramos inscritos.') &&
-							Calendario.clear()}
-					>
-						<Trash />
-					</Button>
-				</Tooltip>
+				<Window {...activeWindowProps ?? {}} />
 			</div>
-			{#await import('./elements/RamosList.svelte') then { default: RamosList }}
-				<RamosList />
-			{/await}
-			<div class="flex h-full w-full flex-col-reverse">
-				{#if Calendario.inicializado}
-					{#await import('./elements/SedeSelector.svelte') then { default: SedeSelector }}
-						<SedeSelector />
-					{/await}
-				{/if}
-			</div>
-		</div>
-	{/if}
-	{#if activeWindow}
-		<div
-			transition:fly={{ x: '-100%', opacity: 1, easing: circOut, duration: 400 }}
-			class="bg-sidebar text-sidebar-foreground absolute top-0 left-0 flex h-full w-full flex-col items-end gap-2 p-4 {activeWindow
-				? 'pointer-events-auto'
-				: 'pointer-events-none'}"
-		>
-			<Button
-				class="aspect-square h-min w-auto"
-				variant="ghost"
-				onclick={() => {
-					activeWindow = undefined;
-					Calendario.ramoPreview = undefined;
-				}}
-			>
-				<Add class="scale-150 rotate-45" />
-			</Button>
-			{@render activeWindow?.()}
-		</div>
-	{/if}
+		{/if}
+	</div>
 </div>
+
+<style lang="postcss">
+	@import 'tailwindcss';
+
+	#main-sidebar {
+		animation: main-sidebar-in 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+		@apply w-90;
+	}
+
+	@keyframes -global-main-sidebar-in {
+		0% {
+			opacity: 0;
+			width: 0;
+			padding: 0;
+		}
+
+		50% {
+			opacity: 1;
+		}
+	}
+</style>
