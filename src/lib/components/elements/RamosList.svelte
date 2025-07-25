@@ -9,9 +9,9 @@
 	import { Calendario } from '$lib/states/calendario.svelte';
 	import type { RamoCarrera } from '$lib/types/horario';
 	import Color from 'color';
-	import { SideBar } from '../main/sidebar/SideBar.svelte';
-	import RamoWindow from '../main/sidebar/windows/RamoWindow.svelte';
 	import Badge from '../ui/Badge.svelte';
+	import { SideBar } from '../sidebar/SideBar.svelte';
+	import RamoWindow from '../sidebar/windows/RamoWindow.svelte';
 
 	const ramosCarrera: (RamoCarrera | undefined)[] = $derived(
 		Calendario.ramos.map((r) =>
