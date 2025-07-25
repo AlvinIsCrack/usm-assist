@@ -1,6 +1,6 @@
 import { SAVED_HORARIOS, STORAGE_JORNADA, STORAGE_SEDE, STORAGE_SEMESTRE } from "$lib/constants/ids";
 import { generateColorForRamo } from "$lib/helpers/colors.svelte";
-import { type Ramo, Días, type Bloque } from "$lib/types/horario";
+import { type Ramo, Días, type Bloque, TipoBloque } from "$lib/types/horario";
 import Color from "color";
 import { tick } from "svelte";
 
@@ -76,6 +76,42 @@ const derivedState = $derived.by(() => {
     return { range, bloqueRange, bloquesDía };
 });
 
+let _ventanas = $derived.by(() => {
+    const _ = [_ramos];
+    const ventanas: { día: Días; bloque: number; duraciónBloques: number }[] = [];
+    for (let día = derivedState.range[0]; día <= derivedState.range[1]; día++) {
+        // Obtiene los números de bloque que tienen clases, ordenados
+        const bloquesOcupados = Object.keys(derivedState.bloquesDía[día] ?? {})
+            .map(Number)
+            .sort((a, b) => a - b);
+        // No hay ventanas si hay menos de 2 grupos de clases en el día
+        if (bloquesOcupados.length < 2) continue;
+
+        const primerBloque = bloquesOcupados[0];
+        const ultimoBloque = bloquesOcupados[bloquesOcupados.length - 1];
+
+        // Itera entre la primera y la última clase del día
+        for (let bloqueNum = primerBloque + 1; bloqueNum < ultimoBloque; bloqueNum++) {
+            // Si el bloque actual no tiene clases, es una ventana
+            if (!derivedState.bloquesDía[día]?.[bloqueNum]?.length) {
+                // Si el bloque siguiente también es una ventana, se extiende la duración
+                if (!derivedState.bloquesDía[día]?.[bloqueNum + 1]?.length) {
+                    let duraciónBloques = 1;
+                    while (!derivedState.bloquesDía[día]?.[bloqueNum + duraciónBloques]?.length) {
+                        duraciónBloques++;
+                    }
+                    ventanas.push({ día, bloque: bloqueNum, duraciónBloques });
+                    bloqueNum += duraciónBloques - 1; // Salta los bloques de la ventana
+                } else {
+                    // Si no hay ventana extendida, se registra una ventana de un solo bloque
+                    ventanas.push({ día, bloque: bloqueNum, duraciónBloques: 1 });
+                }
+            }
+        }
+    }
+    return ventanas;
+});
+
 // --- INTERFAZ PÚBLICA (MODIFICADA PARA USAR ESTADO DERIVADO) ---
 
 export const Calendario = {
@@ -137,6 +173,10 @@ export const Calendario = {
         throw new Error("Esto no se puede usar!");
     },
 
+    get ventanas() {
+        return _ventanas;
+    },
+
     get range() {
         return derivedState.range;
     },
@@ -171,6 +211,9 @@ export const Calendario = {
     },
 
     hasRamo(query: { sigla?: string, paralelo?: string }) {
+        if (!_ramos.length) return false;
+        if (Object.values(query).filter(s => s).length === 0) return false;
+
         let { sigla, paralelo } = query;
         return _ramos.some(r => (!sigla || r.sigla === sigla) && (!paralelo || r.paralelo === paralelo));
     },
@@ -280,5 +323,9 @@ export const Calendario = {
 
     getBloque(día: Días, bloque: number): Bloque[] | null {
         return derivedState.bloquesDía[día as number]?.[bloque] ?? null;
+    },
+
+    getBloquesDía(día: Días): { [bloque: number]: Bloque[] } | null {
+        return derivedState.bloquesDía[día as number] ?? null;
     }
 };

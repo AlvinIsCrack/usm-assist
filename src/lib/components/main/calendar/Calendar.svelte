@@ -1,12 +1,6 @@
 <script lang="ts">
 	import Badge from '$lib/components/ui/Badge.svelte';
-	import {
-		BLOQUE_COMIDA,
-		BLOQUE_COMIDA_DURATION_MINUTES,
-		BLOQUE_DURATION_MINUTES,
-		BREAK_DURATION_MINUTES,
-		DAY_FIRST_MINUTES
-	} from '$lib/constants/usm';
+	import { BLOQUE_COMIDA, BLOQUE_DURATION_MINUTES } from '$lib/constants/usm';
 	import Time from '$lib/helpers/time';
 	import GroupedCell from './GroupedCell.svelte';
 	import _ from 'lodash';
@@ -14,29 +8,16 @@
 	import ForkSpoon from '$lib/icons/fork-spoon.svelte';
 	import { Calendario } from '$lib/states/calendario.svelte';
 	import { Días } from '$lib/types/horario';
+	import { untrack } from 'svelte';
 
 	const [bloqueBegin, bloqueEnd] = $derived(Calendario.bloqueRange);
 	const [díaBegin, díaEnd] = $derived(Calendario.range);
-
 	const numDias = $derived(díaEnd - díaBegin + 1);
 	const bloquePairs = $derived.by(() => {
 		const pairs = [];
 		for (let i = bloqueBegin; i <= bloqueEnd; i += 2) pairs.push(i);
 		return pairs;
 	});
-
-	function bloqueToMinutes(bloque: number) {
-		return (
-			DAY_FIRST_MINUTES +
-			BLOQUE_DURATION_MINUTES * (bloque - 1) +
-			BREAK_DURATION_MINUTES * Math.floor((bloque - 1) / 2) +
-			(bloque > BLOQUE_COMIDA ? BLOQUE_COMIDA_DURATION_MINUTES : 0)
-		);
-	}
-
-	function bloqueToHHMM(bloque: number) {
-		return Time.MinutesToHHMM(bloqueToMinutes(bloque));
-	}
 </script>
 
 <div transition:fade class="relative h-full w-full">
@@ -88,14 +69,14 @@
 								class="absolute top-1 z-50 flex w-full origin-top flex-col items-center justify-center"
 							>
 								<div class="rotate-180 items-center gap-2 text-center [writing-mode:vertical-rl]">
-									<span>{bloqueToHHMM(bloquePar)}</span><br />
+									<span>{Time.bloqueToHHMM(bloquePar)}</span><br />
 								</div>
 							</div>
 							<div class="absolute bottom-1 flex w-full origin-bottom justify-center">
 								<div class="rotate-180 font-light opacity-50 [writing-mode:vertical-rl]">
 									<span
 										>{Time.MinutesToHHMM(
-											bloqueToMinutes(bloquePar + 1) + BLOQUE_DURATION_MINUTES
+											Time.bloqueToMinutes(bloquePar + 1) + BLOQUE_DURATION_MINUTES
 										)}</span
 									>
 								</div>

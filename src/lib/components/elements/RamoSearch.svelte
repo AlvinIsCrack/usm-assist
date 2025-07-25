@@ -43,7 +43,6 @@
 			.toLowerCase()
 			.split(/\s+|\*+/g)
 			.filter((s) => s);
-		console.log(splittedQuery);
 
 		return Object.entries(Data.cachedRamos).filter(([k, paralelos]) => {
 			for (const q of splittedQuery)

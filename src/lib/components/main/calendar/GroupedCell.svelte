@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Calendario } from '$lib/states/calendario.svelte';
-	import type { Bloque, Días } from '$lib/types/horario';
+	import { TipoBloque, type Bloque, type Días } from '$lib/types/horario';
 	import BlockContent from './BlockContent.svelte';
 
 	let { día, bloque }: { día: Días; bloque: number } = $props();
@@ -15,13 +15,11 @@
 	 * @returns Un string que identifica de forma única los ramos en la celda.
 	 */
 	function getBloquesSignature(bloques: Bloque[] | null): string {
-		if (!bloques || bloques.length === 0) {
-			return '';
-		}
-		// Usamos sigla y paralelo para una identificación única, y luego ordenamos
-		// para asegurar que el orden no afecte el resultado.
+		if (!bloques || bloques.length === 0) return '';
+
+		// Ordena para que el orden de los ramos en conflicto no afecte la firma.
 		return bloques
-			.map((b) => `${b.ramo.sigla}-${b.ramo.paralelo}`)
+			.map((b) => `${b.ramo!.sigla}-${b.ramo!.paralelo}-${b.sala}`)
 			.sort()
 			.join(',');
 	}

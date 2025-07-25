@@ -78,7 +78,7 @@ export enum TipoBloque {
     Laboratorio = "Lab",
     Recitación = "Rec",
     Práctica = "Prá",
-    Otro = "Otr"
+    Otro = "Otr",
 }
 
 export enum Días {

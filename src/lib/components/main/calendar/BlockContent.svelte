@@ -1,8 +1,7 @@
 <script lang="ts">
 	import RamoCard from './RamoCard.svelte';
-	import Warning from '$lib/icons/warning.svelte';
-	import Door from '$lib/icons/door.svelte';
 	import type { Bloque } from '$lib/types/horario';
+	import { TipoBloque } from '$lib/types/horario';
 
 	let { bloques }: { bloques: Bloque[] | null } = $props();
 </script>
@@ -16,26 +15,6 @@
 			<RamoCard bloqueObject={bloques[1]} />
 		</div>
 	{:else}
-		<div class="h-full w-full p-2">
-			<div
-				class="bg-destructive/80 text-destructive-foreground flex h-full w-full flex-col gap-1 overflow-y-auto rounded-lg p-4 text-left ring ring-inset"
-			>
-				<div class="flex items-center gap-1 font-bold">
-					<Warning class="icon" />
-					<span>{bloques.length} RAMOS EN CONFLICTO</span>
-				</div>
-				{#each bloques as b (b.ramo.sigla + b.ramo.paralelo)}
-					<div
-						class="border-destructive-foreground/30 line-clamp-2 flex items-center justify-evenly rounded border p-1 text-sm"
-					>
-						<span class="font-bold">{b.ramo.sigla}</span>
-						<span class="flex flex-row items-center justify-center gap-1">
-							<Door class="inline" />
-							{b.sala}
-						</span>
-					</div>
-				{/each}
-			</div>
-		</div>
+		<div class="h-full w-full p-2"></div>
 	{/if}
 </div>

@@ -97,6 +97,7 @@
 								</Button>
 							</Tooltip>
 
+							<Separator />
 							{#if !Calendario.visible}
 								<Button
 									variant="secondary"
@@ -115,6 +116,7 @@
 						{#await import('../../elements/RamosList.svelte') then { default: RamosList }}
 							<RamosList />
 						{/await}
+						<Separator />
 						{#await import('../../elements/Statistics.svelte') then { default: Statistics }}
 							<Statistics />
 						{/await}

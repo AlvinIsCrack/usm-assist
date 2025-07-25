@@ -2,17 +2,17 @@
 	import { fly } from 'svelte/transition';
 	import { type ColorInstance } from 'color';
 	import Badge from '$lib/components/ui/Badge.svelte';
-	import Door from '$lib/icons/door.svelte';
 	import { Calendario } from '$lib/states/calendario.svelte';
 	import { TipoBloque, type Bloque } from '$lib/types/horario';
+	import Location from '$lib/icons/location.svelte';
 
 	let { bloqueObject, ...props }: { bloqueObject: Bloque } = $props();
 	let visible = $state(false);
 
 	const ramo = $derived(bloqueObject.ramo);
 	const esCátedra = bloqueObject.tipo === TipoBloque.Cátedra;
-	const color: ColorInstance = ramo.color!;
-	const esOscuro = color.isDark();
+	// svelte-ignore state_referenced_locally
+	const [color, esOscuro] = [ramo.color!, ramo.color!.isDark()];
 	const salaVálida = !bloqueObject.sala.match(/sin(?:\s+sala)?/gi);
 
 	$effect(() => {
@@ -57,7 +57,7 @@
 
 				<div class="flex w-full flex-row-reverse flex-wrap items-center justify-between gap-2">
 					{#if salaVálida}
-						<Badge icon={Door}>
+						<Badge icon={Location}>
 							{bloqueObject.sala}
 						</Badge>
 					{/if}

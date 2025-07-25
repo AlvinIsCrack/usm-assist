@@ -14,6 +14,7 @@
 		class: _class,
 		offset = 8,
 		wrapperClass,
+		forceVisible = false,
 		...props
 	}: {
 		wrapperClass?: ClassValue;
@@ -22,6 +23,7 @@
 		followCursor?: boolean;
 		disablePortal?: boolean;
 		offset?: number;
+		forceVisible?: boolean;
 	} & HTMLAttributes<HTMLDivElement> = $props();
 
 	const tooltip = tv({
@@ -41,6 +43,12 @@
 	let style = $state('');
 	let wrapperEl: HTMLDivElement | undefined;
 	let tooltipEl: HTMLDivElement | undefined = $state(undefined);
+
+	$effect(() => {
+		if (forceVisible) {
+			visible = true;
+		} else visible = false;
+	});
 
 	const boundaryPadding = 4;
 

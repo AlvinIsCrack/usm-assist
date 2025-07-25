@@ -26,10 +26,7 @@
 	});
 </script>
 
-<div class="flex min-h-1/2 w-full flex-col gap-2">
-	<Separator />
-
-	<h2 class="text-sm">Estadísticas</h2>
+<div class="mt-2 flex min-h-1/2 w-full flex-col gap-2">
 	<div class="flex h-full w-full flex-col gap-1">
 		{#await statistics}
 			<div class="flex h-full w-full items-center justify-center">
