@@ -26,7 +26,7 @@
 	{:else}
 		<div class="flex w-full flex-row items-center justify-between gap-2 text-sm">
 			{Calendario.ramos.length}
-			{Calendario.ramos.length === 1 ? 'Ramo' : 'Ramos'} en total
+			{Calendario.ramos.length === 1 ? 'Ramo' : 'Ramos'}
 			<Badge icon={Circles}>
 				{Calendario.ramos
 					.map(
@@ -81,7 +81,7 @@
 						style:background={creditosColor.hexa()}
 					></div>
 
-					<div class="max-w-1/2 truncate font-bold">{ramo.nombre}</div>
+					<div class="max-w-1/2 truncate font-bold" title={ramo.nombre}>{ramo.nombre}</div>
 
 					<div class="text-foreground/50 pointer -mt-1 flex flex-row gap-4 text-xs">
 						<b>{ramo.sigla}</b> PAR. {ramo.paralelo}
