@@ -8,3 +8,5 @@ import localeData from 'dayjs/plugin/localeData';
 dayjs.locale('es-mx');
 dayjs.extend(relativeTime);
 dayjs.extend(localeData);
+
+import "$lib/helpers/extensions";

@@ -52,7 +52,7 @@
 	let semestres = $derived(
 		selectedSede && selectedJornada
 			? Data.semestres[selectedSede][selectedJornada].filter((semestreKey: string) => {
-					const semestreData = Data.getRamo(selectedSede, selectedJornada, semestreKey);
+					const semestreData = Data.ASIGNATURAS[selectedSede][selectedJornada][semestreKey];
 					return semestreData && Object.keys(semestreData).length > 0;
 				})
 			: []

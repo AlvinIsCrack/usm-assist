@@ -1,29 +1,24 @@
-import { STORAGE_JORNADA, STORAGE_SEDE, STORAGE_SEMESTRE } from "$lib/constants/ids";
+import { SAVED_HORARIOS, STORAGE_JORNADA, STORAGE_SEDE, STORAGE_SEMESTRE } from "$lib/constants/ids";
 import { generateColorForRamo } from "$lib/helpers/colors.svelte";
 import { type Ramo, Días, type Bloque } from "$lib/types/horario";
-import Color from 'color';
-
-// --- INTERFACES PARA LA SERIALIZACIÓN ---
-// Estructura de datos para un ramo guardado.
-interface SavedRamo {
-    sigla: string;
-    paralelo: string;
-    color: string; // El color se guarda como un string hexadecimal.
-}
+import Color from "color";
+import { tick } from "svelte";
 
 // Estructura del archivo de guardado completo.
-interface SaveData {
+interface SavedHorarios {
     version: number;
     meta: {
         sede: string;
         jornada: string;
         semestre: string;
-        exportedAt: string;
+        exportedAt: Date;
     };
-    ramos: SavedRamo[];
+    ramos: {
+        sigla: string;
+        paralelo: string;
+        color?: string;
+    }[];
 }
-
-const SAVE_FILE_VERSION = 1;
 
 
 // --- ESTADO Y CÁLCULOS DERIVADOS REACTIVOS ---
@@ -37,6 +32,7 @@ let _ramos: Ramo[] = $state([]);
 let _calendarioVisible = $derived(_ramos.length || _ramoPreview);
 
 let _initialized = $state(false);
+let _savedHorarios: { [key: string]: SavedHorarios } = $state({});
 let _lockedLocation: boolean = $derived(_initialized && Boolean(_ramos.length));
 
 // El estado derivado se calcula reactivamente cuando _ramos o _ramoPreview cambian.
@@ -80,64 +76,11 @@ const derivedState = $derived.by(() => {
     return { range, bloqueRange, bloquesDía };
 });
 
-function _handleLoadedData(
-    data: SaveData
-) {
-    if (typeof data.version !== 'number' || !data.ramos) {
-        throw new Error('El archivo no tiene un formato de horario válido.');
-    }
-
-    // El switch permite manejar diferentes versiones del archivo en el futuro.
-    switch (data.version) {
-        case 1:
-            _loadV1(data);
-            break;
-        default:
-            throw new Error(`Versión de archivo no soportada: ${data.version}.`);
-    }
-}
-
-async function _loadV1(data: SaveData) {
-    const Data = await import("$lib/data/data.svelte").then((data) => data.Data);
-
-    const loadedRamos: Ramo[] = [];
-    let notFoundCount = 0;
-
-    for (const savedRamo of data.ramos) {
-        const ramoData = Data.cachedRamos[savedRamo.sigla]?.[savedRamo.paralelo];
-
-        if (ramoData) {
-            const newRamo = { ...ramoData };
-            // Recrea la instancia de Color a partir del string guardado.
-            newRamo.color = Color(savedRamo.color);
-            loadedRamos.push(newRamo);
-        } else {
-            notFoundCount++;
-        }
-    }
-
-    // Actualiza el estado de la aplicación.
-    _ramos = loadedRamos;
-    _sede = data.meta.sede;
-    _jornada = data.meta.jornada;
-    _semestre = data.meta.semestre;
-
-    // Persiste la nueva ubicación en localStorage.
-    localStorage.setItem(STORAGE_SEDE, _sede);
-    localStorage.setItem(STORAGE_JORNADA, _jornada);
-    localStorage.setItem(STORAGE_SEMESTRE, _semestre);
-
-    if (notFoundCount > 0) {
-        alert(
-            `${notFoundCount} ramo(s) del archivo no se encontraron en la oferta académica actual y fueron omitidos.`
-        );
-    }
-}
-
 // --- INTERFAZ PÚBLICA (MODIFICADA PARA USAR ESTADO DERIVADO) ---
 
 export const Calendario = {
     init(localStorage: any) {
+        _savedHorarios = localStorage.getItem(SAVED_HORARIOS) ? JSON.parse(localStorage.getItem(SAVED_HORARIOS)!) : [];
         _sede = localStorage.getItem(STORAGE_SEDE) ?? "";
         _jornada = localStorage.getItem(STORAGE_JORNADA) ?? "";
         _semestre = localStorage.getItem(STORAGE_SEMESTRE) ?? "";
@@ -241,6 +184,8 @@ export const Calendario = {
     removeRamo(sigla: string) {
         if (!_ramos.some(r => r.sigla === sigla)) return false;
         _ramos = [..._ramos.filter(r => r.sigla !== sigla)];
+        if (_ramoPreview?.sigla === sigla)
+            _ramoPreview = undefined;
         return true;
     },
 
@@ -248,85 +193,89 @@ export const Calendario = {
         _ramos = [];
     },
 
-    save() {
-        if (!_ramos.length) return;
-
-        const savedRamos: SavedRamo[] = _ramos.map((ramo) => ({
-            sigla: ramo.sigla,
-            paralelo: ramo.paralelo,
-            color: ramo.color!.hexa() // Convierte la instancia de Color a un string #RRGGBB
-        }));
-
-        const saveData: SaveData = {
-            version: SAVE_FILE_VERSION,
-            meta: {
-                sede: _sede,
-                jornada: _jornada,
-                semestre: _semestre,
-                exportedAt: new Date().toISOString()
-            },
-            ramos: savedRamos
-        };
-
-        const jsonString = JSON.stringify(saveData, null, 2);
-        const blob = new Blob([jsonString], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        const date = new Date().toISOString().slice(0, 10);
-
-        a.href = url;
-        a.download = `horario-usm-${date}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+    clearSaved() {
+        _savedHorarios = {};
+        localStorage.removeItem(SAVED_HORARIOS);
     },
 
-    load(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json,application/json';
-            input.style.display = 'none';
+    hasSaved() {
+        return Object.keys(_savedHorarios).length > 0;
+    },
 
-            const cleanup = () => document.body.removeChild(input);
+    removeSaved(key: string) {
+        if (!_savedHorarios[key]) return false;
+        delete _savedHorarios[key];
+        localStorage.setItem(SAVED_HORARIOS, JSON.stringify(_savedHorarios));
+        return true;
+    },
 
-            input.onchange = (event) => {
-                const file = (event.target as HTMLInputElement).files?.[0];
-                if (!file) {
-                    cleanup();
-                    return reject(new Error('No se seleccionó ningún archivo.'));
-                }
+    getSaved() {
+        return Object.keys(_savedHorarios);
+    },
 
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const data = JSON.parse(e.target?.result as string) as SaveData;
-                        _handleLoadedData(data);
-                        resolve();
-                    } catch (error) {
-                        const message = error instanceof Error ? error.message : String(error);
-                        alert(`Error al procesar el archivo: ${message}`);
-                        reject(error);
-                    } finally {
-                        cleanup();
-                    }
-                };
-                reader.onerror = (error) => {
-                    cleanup();
-                    reject(error);
-                };
-                reader.readAsText(file);
-            };
+    save(key: string) {
+        if (!_ramos.length) return;
+        _savedHorarios = {
+            ..._savedHorarios, [key]: {
+                version: 1,
+                meta: {
+                    sede: _sede,
+                    jornada: _jornada,
+                    semestre: _semestre,
+                    exportedAt: new Date()
+                },
+                ramos: _ramos.map(r => ({
+                    sigla: r.sigla,
+                    paralelo: r.paralelo,
+                    color: r.color?.hexa()
+                }))
+            }
+        };
+        localStorage.setItem(SAVED_HORARIOS, JSON.stringify(_savedHorarios));
+    },
 
-            input.oncancel = () => {
-                cleanup();
-                reject(new Error('Carga de archivo cancelada.'));
-            };
+    async load(key: string) {
+        let parsed: SavedHorarios | undefined;
+        try {
+            parsed = _savedHorarios[key] as SavedHorarios;
+        } catch (e) {
+            alert("Error al parsear el horario guardado. Asegúrate de que el formato sea correcto.");
+            return false;
+        }
 
-            document.body.appendChild(input);
-            input.click();
-        });
+        _sede = parsed.meta.sede ?? "";
+        _jornada = parsed.meta.jornada ?? "";
+        _semestre = parsed.meta.semestre ?? "";
+
+        const [, Data] = await Promise.all([
+            tick(),
+            import("$lib/data/data.svelte").then((data) => data.Data)
+        ])
+
+        if (!Data.cachedRamos) {
+            alert("No se pudo cargar el horario guardado. Asegúrate de que los ramos estén disponibles.");
+            return false;
+        }
+
+        const loadedRamos: Ramo[] = [];
+        let notFoundCount = 0;
+
+        for (const savedRamo of parsed.ramos) {
+            const ramoData = Data.cachedRamos[savedRamo.sigla]?.[savedRamo.paralelo];
+
+            if (ramoData) {
+                const newRamo = { ...ramoData };
+                // Recrea la instancia de Color a partir del string guardado.
+                newRamo.color = Color(savedRamo.color);
+                loadedRamos.push(newRamo);
+            } else {
+                notFoundCount++;
+            }
+        }
+
+        _ramos = loadedRamos;
+        _ramoPreview = undefined;
+        return true;
     },
 
     getBloque(día: Días, bloque: number): Bloque[] | null {

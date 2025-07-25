@@ -34,25 +34,22 @@
 	let highlightedIndex = $state(0);
 	let itemNodes: Array<HTMLLIElement> = $state([]);
 
-	function normalizeString(input: string) {
-		if (!input) return '';
-		return input
-			.toLowerCase()
-			.normalize('NFD')
-			.replace(/[\u0300-\u036f]/g, '');
-	}
-
 	const filteredItems = $derived.by(() => {
 		if (disabled) return [];
 
-		const splittedQuery = normalizeString(query)
-			.split(/\s+|\*/g)
+		const splittedQuery = query
+			.trim()
+			.deaccent()
+			.toLowerCase()
+			.split(/\s+|\*+/g)
 			.filter((s) => s);
+		console.log(splittedQuery);
+
 		return Object.entries(Data.cachedRamos).filter(([k, paralelos]) => {
 			for (const q of splittedQuery)
 				if (
-					!normalizeString(k).includes(q) &&
-					!normalizeString(Object.values(paralelos).at(0)?.nombre ?? '').includes(q)
+					!k.deaccent().toLowerCase().includes(q) &&
+					!Object.values(paralelos).at(0)?.nombre.deaccent().toLowerCase().includes(q)
 				)
 					return false;
 			return true;

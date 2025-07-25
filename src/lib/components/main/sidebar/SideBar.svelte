@@ -11,6 +11,8 @@
 	import Tooltip from '$lib/components/ui/Tooltip.svelte';
 	import Separator from '$lib/components/ui/Separator.svelte';
 	import { tick } from 'svelte';
+	import SavedHorariosWindow from './windows/SavedHorariosWindow.svelte';
+	import Horario from '$lib/icons/horario.svelte';
 
 	let activeWindowProps: any = $state(undefined);
 	let activeWindow: any | undefined = $state(undefined);
@@ -56,27 +58,30 @@
 				</div> -->
 				<div class="h-min w-full">
 					{#if Calendario.sede}
-						<div in:fly={{ y: -40 }} class="flex h-min w-full flex-row flex-nowrap gap-2">
-							<Button
-								size="sm"
-								class="w-full text-nowrap"
-								onclick={() => (activeWindow = RamoWindow)}
-							>
-								<Add /> Añadir ramo
+						<div in:fly={{ y: -40 }} class="flex h-min w-full flex-row flex-wrap gap-2">
+							<Button class="flex-1 text-nowrap" onclick={() => (activeWindow = RamoWindow)}>
+								<Add class="inline scale-125" /> Añadir ramo
 							</Button>
 							<Tooltip content="Guardar horario">
 								<Button
 									variant="ghost"
 									size="icon"
 									disabled={!Calendario.ramos.length}
-									onclick={Calendario.save}
+									onclick={() => {
+										const key = prompt(
+											'¿Cómo se va a llamar el horario? (debe ser único)',
+											new Date().toLocaleDateString('es-ES', {
+												year: 'numeric',
+												month: '2-digit',
+												day: '2-digit',
+												hour: '2-digit',
+												minute: '2-digit'
+											})
+										);
+										if (key) Calendario.save(key);
+									}}
 								>
 									<Save />
-								</Button>
-							</Tooltip>
-							<Tooltip content="Cargar horario">
-								<Button variant="ghost" size="icon" onclick={Calendario.load}>
-									<Load />
 								</Button>
 							</Tooltip>
 							<Tooltip content="Limpiar todo">
@@ -91,10 +96,18 @@
 									<Trash />
 								</Button>
 							</Tooltip>
-						</div>
-						<!-- <Button size="sm" variant="secondary">
 
-						</Button> -->
+							{#if !Calendario.visible}
+								<Button
+									variant="secondary"
+									class="w-full text-nowrap"
+									onclick={() => (activeWindow = SavedHorariosWindow)}
+								>
+									<Horario class="inline scale-125" />
+									Horarios guardados
+								</Button>
+							{/if}
+						</div>
 					{/if}
 				</div>
 				<div class="flex h-full w-full flex-col-reverse gap-1">

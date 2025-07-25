@@ -148,6 +148,7 @@
 
 <div
 	class="relative inline-flex {wrapperClass}"
+	onpointerdown={() => (visible = false)}
 	onpointerenter={() => (visible = true)}
 	onpointerleave={() => (visible = false)}
 	onpointermove={handlePointerMove}

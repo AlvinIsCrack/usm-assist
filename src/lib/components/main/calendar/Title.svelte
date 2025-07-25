@@ -20,9 +20,9 @@
 			<div class="text-foreground text-justify text-4xl leading-8 font-black">
 				INFORMACIÓN DE RAMOS ACTUALIZADA HACE
 				<div
-					class="update-date-calendario font-gothic-expanded -mt-2 w-full text-center text-9xl uppercase"
+					class="update-date-calendario font-gothic-expanded -mt-3 w-full text-center text-9xl uppercase"
 				>
-					{Data.updateDate?.fromNow().replace('hace', '')}
+					{Data.updateDate?.fromNow().replace('hace', '').deaccent()}
 				</div>
 			</div>
 			<div class="w-full text-center text-sm italic opacity-50">

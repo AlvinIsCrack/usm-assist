@@ -6,7 +6,7 @@
 	import { Calendario } from '$lib/states/calendario.svelte';
 	import { TipoBloque, type Bloque } from '$lib/types/horario';
 
-	let { bloqueObject }: { bloqueObject: Bloque } = $props();
+	let { bloqueObject, ...props }: { bloqueObject: Bloque } = $props();
 	let visible = $state(false);
 
 	const ramo = $derived(bloqueObject.ramo);
@@ -27,6 +27,8 @@
 	<div class="relative h-full w-full">
 		{#if visible}
 			<div
+				onmouseenter={() => (Calendario.ramoPreview = ramo)}
+				onmouseleave={() => (Calendario.ramoPreview = undefined)}
 				transition:fly
 				class="ring-border border-input absolute flex h-full w-full flex-col justify-between ring {esCátedra
 					? 'rounded-lg'
@@ -40,11 +42,13 @@
 					.lighten(0.3)
 					.desaturate(0.25)
 					.hexa()})"
+				{...props}
 			>
 				<div>
 					<p class="line-clamp-2 text-sm leading-4 font-medium">{ramo.nombre}</p>
-					<p class="font-bold" class:opacity-60={esOscuro} class:opacity-40={!esOscuro}>
-						{ramo.sigla}
+					<p class:opacity-60={esOscuro} class:opacity-40={!esOscuro}>
+						<b>{ramo.sigla}</b>
+						<span class="text-xs">PAR. {ramo.paralelo}</span>
 					</p>
 					<!-- <p class="-mt-1 origin-top-left scale-200 font-mono text-sm font-black opacity-40">
 						{ramo.paralelo}

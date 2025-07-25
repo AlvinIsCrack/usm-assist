@@ -50,8 +50,7 @@
 			Busca y escoge el ramo
 			<p class="text-xs opacity-50">
 				Escribe para buscar entre los ramos disponibles. Puedes escribir la sigla o palabras del
-				nombre del ramo. Si un ramo ya está en tu horario, se marcará con naranjo en la lista, y se
-				reemplazará el paralelo.
+				nombre del ramo.
 			</p>
 		</div>
 		<RamoSearch bind:value={selectedRamo} />

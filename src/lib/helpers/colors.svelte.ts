@@ -8,17 +8,12 @@ type KeywordColorEntry = {
 };
 
 const KEYWORD_COLOR_MAPPINGS: KeywordColorEntry[] = [
-    // === Colores Base Solicitados (Chile) ===
     { regex: /\b(MAT|MATE|MATEMATICAS?)\b/i, color: Color('#1463c9') }, // Azul oscuro para Matemáticas
     { regex: /\b(LENGUAJE|LITERATURA|HUM)\b/i, color: Color('#CC0000') }, // Rojo para Lenguaje/Humanidades
     { regex: /\b(CIENCIAS? NATURALES?|BIO)\b/i, color: Color('#2E8B57') }, // Verde para Ciencias Naturales / Biología
     { regex: /\b(FIS|FISICA)\b/i, color: Color('#8A2BE2') }, // Morado para Física
     { regex: /\b(DEFIDER|EDUCACION FISICA|EFI)\b/i, color: Color('#808080') }, // Gris para Educación Física
     { regex: /\b(QUI|QUIMICA)\b/i, color: Color('#ADFF2F') }, // Verde ácido para Química
-    { regex: /\b(MUSICA)\b/i, color: Color('#DDA0DD') }, // Morado claro para Música
-    { regex: /\b(HISTORIA)\b/i, color: Color('#FFA500') }, // Naranjo para Historia
-
-    // === Colores por Departamento/Carrera (basado en el JSON) ===
     { regex: /\b(INF|INFORMATICA|COMPUTACI(O|Ó)N)\b/i, color: Color('#FCA103') }, // Naranjo-amarillo para Informática
     { regex: /\b(ELO|ELECTRONICA)\b/i, color: Color('#17A589') }, // Verde azulado para Electrónica
     { regex: /\b(ELI|ELECTRICA)\b/i, color: Color('#2ECC71') }, // Verde brillante para Eléctrica
@@ -31,14 +26,6 @@ const KEYWORD_COLOR_MAPPINGS: KeywordColorEntry[] = [
     { regex: /\b(MINAS|METALURGIA)\b/i, color: Color('#CD7F32') }, // Bronce para Minería y Metalurgia
     { regex: /\b(AERO|AERONAUTICA)\b/i, color: Color('#87CEEB') }, // Azul cielo para Aeronáutica
 
-    // === NUEVOS MAPPINGS: Negocios, Humanidades y Cursos Institucionales ===
-    { regex: /\b(ECO|ECONOMIA|FINANZAS|NEGOCIOS|ADMINISTRACION)\b/i, color: Color('#1E8449') }, // Verde oscuro para Negocios
-    { regex: /\b(DERECHO|LEGAL|LEGISLACION)\b/i, color: Color('#800000') }, // Burdeo para Derecho
-    { regex: /\b(ESTADISTICA|DATOS|PROBABILIDADES)\b/i, color: Color('#34495E') }, // Azul pizarra para Estadística/Datos
-    { regex: /\b(ETICA|FORMACION FUNDAMENTAL|FFH|FFU)\b/i, color: Color('#884EA0') }, // Púrpura para Cursos de Formación Sello
-    { regex: /\b(LID|LIDERAZGO)\b/i, color: Color('#16A085') }, // Verde azulado para Liderazgo
-
-    // === NUEVO MAPPING con FUNCIÓN: Idiomas (Inglés) ===
     {
         regex: /\b(INGLES|ENGLISH|ICM)\s*(\d+|[IVXLCDM]+)\b/i,
         color: (match: string) => {
@@ -74,24 +61,6 @@ function getColorForString(string: string): ColorInstance | undefined {
         if (entry.regex.test(string)) {
             let out = typeof entry.color === "function" ? entry.color(string) : entry.color;
 
-            // --- Modificadores por Nivel (Números Romanos) ---
-            if (/\bI\b/g.test(string)) out = out.darken(.05).rotate(5);
-            else if (/\bII\b/g.test(string)) out = out.darken(.1).rotate(10);
-            else if (/\bIII\b/g.test(string)) out = out.darken(.15).rotate(15);
-            else if (/\bIV\b/g.test(string)) out = out.darken(.2).rotate(20);
-            else if (/\bV\b/g.test(string)) out = out.darken(.25).rotate(25);
-            else if (/\bVI\b/g.test(string)) out = out.darken(.3).rotate(30);
-
-            // --- Modificadores por Nivel (Números Arábigos en la sigla) ---
-            const levelMatch = string.match(/\b\w{3}(\d)/); // Busca el primer dígito después de las 3 letras de la sigla
-            if (levelMatch) {
-                const level = parseInt(levelMatch[1], 10);
-                if (!isNaN(level)) {
-                    // oscurece más a medida que el nivel es mayor
-                    out = out.darken(level * 0.06);
-                }
-            }
-
             // --- Modificadores por tipo de Ramo (palabras clave) ---
             if (/\b(LABORATORIO|TALLER)\b/gi.test(string)) {
                 out = out.desaturate(.2).lighten(.1); // Un color más "práctico"
@@ -101,11 +70,6 @@ function getColorForString(string: string): ColorInstance | undefined {
                 out = out.darken(.25).saturate(.2); // Más oscuro e intenso para ramos avanzados
             } else if (/\b(SEMINARIO|PROYECTO DE TITULO|MEMORIA)\b/gi.test(string)) {
                 out = out.rotate(-15).desaturate(0.5); // Un tono más sobrio para seminarios/títulos
-            }
-
-            // --- Modificadores por patrones especiales ---
-            if (/\b[IV]{1,2}-\w\b/g.test(string)) { // Ramos con formato "IV-A"
-                out = out.desaturate(.4);
             }
 
             if (/\b(APLICAD(A|O))\b/gi.test(string)) { // Ramos con "Aplicada/o"
