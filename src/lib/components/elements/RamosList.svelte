@@ -20,7 +20,7 @@
 	);
 </script>
 
-<div class="mt-2 flex h-full flex-col gap-1">
+<div class="mt-2 flex h-full flex-col gap-1 overflow-y-auto">
 	{#if !Calendario.ramos.length}
 		<p class="opacity-50">No hay ninguno aún.</p>
 	{:else}

@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
-	import { type ColorInstance } from 'color';
 	import Badge from '$lib/components/ui/Badge.svelte';
 	import { Calendario } from '$lib/states/calendario.svelte';
 	import { TipoBloque, type Bloque } from '$lib/types/horario';
 	import Location from '$lib/icons/location.svelte';
+	import { SideBar } from '../sidebar/SideBar.svelte';
 
 	let { bloqueObject, ...props }: { bloqueObject: Bloque } = $props();
 	let visible = $state(false);
@@ -27,8 +27,8 @@
 	<div class="relative h-full w-full">
 		{#if visible}
 			<div
-				onmouseenter={() => (Calendario.ramoPreview = ramo)}
-				onmouseleave={() => (Calendario.ramoPreview = undefined)}
+				onmouseenter={() => !SideBar.activeWindow && (Calendario.ramoPreview = ramo)}
+				onmouseleave={() => !SideBar.activeWindow && (Calendario.ramoPreview = undefined)}
 				transition:fly
 				class="ring-border border-input absolute flex h-full w-full flex-col justify-between ring {esCátedra
 					? 'rounded-lg'
@@ -45,7 +45,9 @@
 				{...props}
 			>
 				<div>
-					<p class="line-clamp-2 text-sm leading-4 font-medium">{ramo.nombre}</p>
+					<p class="line-clamp-2 text-sm leading-4 font-medium" title={ramo.nombre}>
+						{ramo.nombre}
+					</p>
 					<p class:opacity-60={esOscuro} class:opacity-40={!esOscuro}>
 						<b>{ramo.sigla}</b>
 						<span class="text-xs">PAR. {ramo.paralelo}</span>
@@ -57,7 +59,7 @@
 
 				<div class="flex w-full flex-row-reverse flex-wrap items-center justify-between gap-2">
 					{#if salaVálida}
-						<Badge icon={Location}>
+						<Badge class="whitespace-nowrap" icon={Location}>
 							{bloqueObject.sala}
 						</Badge>
 					{/if}

@@ -78,6 +78,11 @@ const _semestres: { [sede: string]: { [jornada: string]: string[] } } = Object.f
 );
 
 const _cachedRamos = $derived(ASIGNATURAS[Calendario?.sede]?.[Calendario.jornada]?.[Calendario.semestre] ?? []);
+const _cachedCarreras = $derived(CARRERAS.filter(carrera => {
+    const sede = Calendario.sede;
+    const jornada = Calendario.jornada;
+    return carrera.sede === sede && (!jornada || carrera.jornada === jornada);
+}));
 let _updatedDate: dayjs.Dayjs | undefined = dayjs(+ASIGNATURAS.date * 1000);
 
 export const Data = {
@@ -151,6 +156,10 @@ export const Data = {
 
     get cachedRamos() {
         return _cachedRamos;
+    },
+
+    get cachedCarreras() {
+        return _cachedCarreras;
     },
 
     get updateDate() {

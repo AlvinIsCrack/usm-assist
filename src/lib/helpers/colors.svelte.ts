@@ -57,6 +57,8 @@ const KEYWORD_COLOR_MAPPINGS: KeywordColorEntry[] = [
 
 
 function getColorForString(string: string): ColorInstance | undefined {
+    string = string.toUpperCase().deaccent();
+
     for (const entry of KEYWORD_COLOR_MAPPINGS) {
         if (entry.regex.test(string)) {
             let out = typeof entry.color === "function" ? entry.color(string) : entry.color;

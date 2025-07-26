@@ -1,6 +1,5 @@
 <script lang="ts">
 	import Button from '$lib/components/ui/Button.svelte';
-	import Separator from '$lib/components/ui/Separator.svelte';
 	import Add from '$lib/icons/add.svelte';
 	import { Calendario } from '$lib/states/calendario.svelte';
 	import { SideBar } from '../SideBar.svelte';
@@ -21,10 +20,11 @@
 					class="w-full p-1!"
 					variant="destructive"
 					size="icon"
-					onclick={async () => {
-						if (confirm(`¿Seguro que quieres eliminar el horario "${key}"?`)) {
-							await Calendario.removeSaved(key);
-						}
+					onclick={(ev) => {
+						ev.preventDefault();
+						ev.stopPropagation();
+						if (confirm(`¿Seguro que quieres eliminar el horario "${key}"?`))
+							Calendario.removeSaved(key);
 					}}
 				>
 					<Add class="scale-150 rotate-45" />

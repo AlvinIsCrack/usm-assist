@@ -1,4 +1,4 @@
-import { SAVED_HORARIOS, STORAGE_JORNADA, STORAGE_SEDE, STORAGE_SEMESTRE } from "$lib/constants/ids";
+import { SAVED_HORARIOS, STORAGE_CARRERA, STORAGE_JORNADA, STORAGE_SEDE, STORAGE_SEMESTRE } from "$lib/constants/ids";
 import { generateColorForRamo } from "$lib/helpers/colors.svelte";
 import { type Ramo, Días, type Bloque, TipoBloque } from "$lib/types/horario";
 import Color from "color";
@@ -26,6 +26,7 @@ interface SavedHorarios {
 let _jornada: string = $state("");
 let _sede: string = $state("");
 let _semestre: string = $state("");
+let _carrera: string = $state("");
 
 let _ramoPreview: Ramo | undefined = $state(undefined);
 let _ramos: Ramo[] = $state([]);
@@ -72,6 +73,11 @@ const derivedState = $derived.by(() => {
         (bloquesDía[bloque.dia] ??= {})[bloque.bloque] ??= [];
         bloquesDía[bloque.dia][bloque.bloque].push(bloque);
     }
+
+    //Ordenar bloques en conflicto por sigla
+    for (const día in bloquesDía)
+        for (const bloque in bloquesDía[día])
+            bloquesDía[día][bloque].sort((a, b) => a.ramo.sigla.localeCompare(b.ramo.sigla));
 
     return { range, bloqueRange, bloquesDía };
 });
@@ -120,6 +126,7 @@ export const Calendario = {
         _sede = localStorage.getItem(STORAGE_SEDE) ?? "";
         _jornada = localStorage.getItem(STORAGE_JORNADA) ?? "";
         _semestre = localStorage.getItem(STORAGE_SEMESTRE) ?? "";
+        _carrera = localStorage.getItem(STORAGE_CARRERA) ?? "";
         _initialized = true;
     },
 
@@ -133,6 +140,10 @@ export const Calendario = {
 
     get semestre() {
         return _semestre;
+    },
+
+    get carrera() {
+        return _carrera;
     },
 
     get ramos(): Ramo[] {
@@ -171,6 +182,11 @@ export const Calendario = {
 
     set ramos(nuevosRamos: Ramo[]) {
         throw new Error("Esto no se puede usar!");
+    },
+
+    set carrera(carrera: string) {
+        _carrera = carrera;
+        localStorage.setItem(STORAGE_CARRERA, carrera);
     },
 
     get ventanas() {

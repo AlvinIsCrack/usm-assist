@@ -8,7 +8,6 @@
 	import ForkSpoon from '$lib/icons/fork-spoon.svelte';
 	import { Calendario } from '$lib/states/calendario.svelte';
 	import { Días } from '$lib/types/horario';
-	import { untrack } from 'svelte';
 
 	const [bloqueBegin, bloqueEnd] = $derived(Calendario.bloqueRange);
 	const [díaBegin, díaEnd] = $derived(Calendario.range);
@@ -30,7 +29,7 @@
 	{:else}
 		<div
 			transition:fade={{ duration: 200 }}
-			class="calendar-grid absolute"
+			class="calendar-grid absolute h-full w-full"
 			style="--num-dias: {numDias};"
 		>
 			<div class="opacity-0"></div>
@@ -42,7 +41,7 @@
 			{/each}
 
 			{#each bloquePairs as bloquePar, i (bloquePar)}
-				<div class="flex w-6 items-center justify-center text-xs font-bold select-none">
+				<div class="flex w-3 items-center justify-center text-xs font-bold select-none">
 					<div class="rotate-180 text-center text-lg font-bold [writing-mode:vertical-rl]">
 						<span class="whitespace-nowrap">{bloquePar} — {bloquePar + 1}</span>
 					</div>
@@ -50,7 +49,7 @@
 
 				{#key bloquePar}
 					{@const bloqueComida = bloquePar - 1 === BLOQUE_COMIDA}
-					<div class="relative h-full w-4">
+					<div class="relative h-full w-3">
 						{#if bloqueComida}
 							<div class="absolute -top-4 -right-2 z-50 translate-x-full">
 								<Badge variant="primary" class="whitespace-nowrap">
